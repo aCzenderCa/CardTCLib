@@ -1,8 +1,17 @@
-﻿using System;
+﻿using BepInEx;
+using CardTCLib.Patch;
+using HarmonyLib;
 
-namespace CardTCLib
+namespace CardTCLib;
+
+[BepInPlugin("zender.CardTCLib.MainRuntime", "CardTCLib", "1.0.0")]
+[BepInDependency("Dop.plugin.CSTI.ModLoader")]
+public class MainRuntime : BaseUnityPlugin
 {
-    public class Class1
+    private static readonly Harmony HarmonyInstance = new("zender.CardTCLib.MainRuntime");
+
+    private void Awake()
     {
+        HarmonyInstance.PatchAll(typeof(EffectWithSlotPatch));
     }
 }
