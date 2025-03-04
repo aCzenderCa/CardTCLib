@@ -8,10 +8,10 @@ namespace CardTCLib.Patch;
 [HarmonyPatch]
 public static class EffectWithSlotPatch
 {
-    [HarmonyPatch(typeof(GenericEncounterPlayerAction),
-         nameof(GenericEncounterPlayerAction.ApplyClashAndDamageFromCard)), HarmonyPostfix]
-    public static void GenericEncounterPlayerAction_ApplyClashAndDamageFromCard_Post(
-        GenericEncounterPlayerAction __instance, InGameCardBase _Card)
+    [HarmonyPatch(typeof(EncounterPlayerAction),
+         nameof(EncounterPlayerAction.ApplyClashAndDamageFromCard)), HarmonyPostfix]
+    public static void EncounterPlayerAction_ApplyClashAndDamageFromCard_Post(
+        EncounterPlayerAction __instance, InGameCardBase _Card)
     {
         var extraClash = 0f;
         var extraDamage = 0f;
@@ -21,8 +21,8 @@ public static class EffectWithSlotPatch
             extraDamage = _Card.CollectFloatValue(TCWeaponAttrs.ExtraDamage);
         }
 
-        __instance.InitialClashValue += new Vector2(extraClash, extraClash);
-        __instance.InitialDamage += new Vector2(extraDamage, extraDamage);
+        __instance.Clash += new Vector2(extraClash, extraClash);
+        __instance.Damage += new Vector2(extraDamage, extraDamage);
     }
 
     [HarmonyPatch(typeof(GameManager), nameof(GameManager.CardOnCardActionRoutine)), HarmonyPrefix]
@@ -45,7 +45,7 @@ public static class EffectWithSlotPatch
         {
             if (!actionCopied)
             {
-                _Action = _Action.Copy();
+                _Action = _Action.;
                 actionCopied = true;
             }
 
