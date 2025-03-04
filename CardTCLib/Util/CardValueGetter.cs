@@ -21,13 +21,13 @@ public static class CardValueGetter
 
     public static float CollectFloatValue(this InGameCardBase card, string key)
     {
-        var value = 0f;
+        var value = card.CardModel.GetFloatValue(key);
         foreach (var inventorySlot in card.CardsInInventory)
         {
             if (inventorySlot.CardModel)
                 value += inventorySlot.CardModel.GetFloatValue(key);
         }
-        
+
         return value;
     }
 }

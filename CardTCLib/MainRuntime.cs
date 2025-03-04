@@ -4,14 +4,15 @@ using HarmonyLib;
 
 namespace CardTCLib;
 
-[BepInPlugin("zender.CardTCLib.MainRuntime", "CardTCLib", "1.0.0")]
+[BepInPlugin("zender.CardTCLib.MainRuntime", "CardTCLib", "1.0.1")]
 [BepInDependency("Dop.plugin.CSTI.ModLoader")]
 public class MainRuntime : BaseUnityPlugin
 {
     private static readonly Harmony HarmonyInstance = new("zender.CardTCLib.MainRuntime");
 
-    private void Awake()
+    static MainRuntime()
     {
         HarmonyInstance.PatchAll(typeof(EffectWithSlotPatch));
+        HarmonyInstance.PatchAll(typeof(TCEffectCardPatch));
     }
 }

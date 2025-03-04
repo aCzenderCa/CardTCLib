@@ -2,10 +2,10 @@
 using CardTCLib.Util;
 using HarmonyLib;
 using UnityEngine;
+using static CardTCLib.Patch.ActionPathUtil;
 
 namespace CardTCLib.Patch;
 
-[HarmonyPatch]
 public static class EffectWithSlotPatch
 {
     [HarmonyPatch(typeof(GenericEncounterPlayerAction),
@@ -27,59 +27,15 @@ public static class EffectWithSlotPatch
 
     [HarmonyPatch(typeof(GameManager), nameof(GameManager.CardOnCardActionRoutine)), HarmonyPrefix]
     public static void GameManager_CardOnCardActionRoutine_Pre(ref CardOnCardAction _Action,
-        InGameCardBase _GivenCard, InGameCardBase _ReceivingCard)
+        InGameCardBase _ReceivingCard, InGameCardBase _GivenCard)
     {
-        var timeCostReduce = 0f;
-        var tcTool = _GivenCard.IsTCTool()
-            ? _GivenCard
-            : _ReceivingCard.IsTCTool()
-                ? _ReceivingCard
-                : null;
-        var actionCopied = false;
-        if (tcTool != null)
-        {
-            timeCostReduce = tcTool.CollectFloatValue(TCToolAttrs.TimeCostReduce);
-        }
-
-        if ((int)timeCostReduce > 0 && _Action.DaytimeCost > 0)
-        {
-            if (!actionCopied)
-            {
-                _Action = _Action.Copy();
-                actionCopied = true;
-            }
-
-            _Action.SetDayTimeCost(_Action.DaytimeCost - (int)timeCostReduce);
-        }
+        _Action = (CardOnCardAction)ActionEffect(_Action, _ReceivingCard, _GivenCard);
     }
 
-    [HarmonyPatch(typeof(CardAction), nameof(CardAction.CollectActionModifiers)), HarmonyPostfix]
-    public static void CardAction_CollectActionModifiers_Post(CardAction __instance, InGameCardBase _ReceivingCard,
-        InGameCardBase _GivenCard)
+    [HarmonyPatch(typeof(GameManager), nameof(GameManager.ActionRoutine)), HarmonyPrefix]
+    public static void GameManager_ActionRoutine_Pre(ref CardAction _Action,
+        InGameCardBase _ReceivingCard, InGameCardBase? _GivenCard)
     {
-        var usageCostReduceGive = 0f;
-        var usageCostReduceRec = 0f;
-
-        if (_ReceivingCard.IsTCTool())
-        {
-            usageCostReduceRec = _ReceivingCard.CollectFloatValue(TCToolAttrs.UsageCostReduce);
-        }
-
-        if (_GivenCard.IsTCTool())
-        {
-            usageCostReduceGive = _GivenCard.CollectFloatValue(TCToolAttrs.UsageCostReduce);
-        }
-
-        if (usageCostReduceRec > 0 && __instance.ReceivingDurabilityChanges.Usage.FloatValue < 0)
-        {
-            __instance.ReceivingDurabilityChanges.Usage.FloatValue = Mathf.Min(0,
-                __instance.ReceivingDurabilityChanges.Usage.FloatValue + usageCostReduceRec);
-        }
-
-        if (usageCostReduceGive > 0 && __instance.GivenDurabilityChanges.Usage.FloatValue < 0)
-        {
-            __instance.GivenDurabilityChanges.Usage.FloatValue = Mathf.Min(0,
-                __instance.GivenDurabilityChanges.Usage.FloatValue + usageCostReduceGive);
-        }
+        _Action = ActionEffect(_Action, _ReceivingCard, _GivenCard);
     }
 }

@@ -3,5 +3,5 @@
 public static class TCToolAttrs
 {
     public static readonly string TimeCostReduce = "TCLib.TimeCostReduce";
-    public static readonly string UsageCostReduce = "TCLib.UsageCostReduce";
+    public static readonly string MiniTimeCostReduce = "TCLib.MiniTimeCostReduce";
 }
