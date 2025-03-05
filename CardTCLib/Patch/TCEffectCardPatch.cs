@@ -16,6 +16,12 @@ public static class TCEffectCardPatch
             if (_Type == DurabilitiesTypes.Usage && _Amt < 0)
             {
                 _Amt = Mathf.Min(0, _Amt + __instance.CollectFloatValue(TCCommonAttrs.UsageCostReduce));
+                foreach (var inventorySlot in __instance.CardsInInventory)
+                {
+                    var mainCard = inventorySlot.MainCard;
+                    var itemUsageCost = mainCard.CollectFloatValue(TCCommonAttrs.ItemUsageCost);
+                    mainCard.ModifyDurability(DurabilitiesTypes.Usage, -itemUsageCost, false);
+                }
             }
         }
     }

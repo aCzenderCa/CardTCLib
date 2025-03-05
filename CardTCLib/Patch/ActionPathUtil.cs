@@ -1,5 +1,4 @@
-﻿using System;
-using CardTCLib.Const;
+﻿using CardTCLib.Const;
 using CardTCLib.Util;
 using UnityEngine;
 
@@ -27,7 +26,7 @@ public static class ActionPathUtil
                 miniTimeCostReduce);
         }
 
-        if ((int)timeCostReduce > 0 && _Action.DaytimeCost > 0)
+        if (Mathf.RoundToInt(timeCostReduce) > 0 && _Action.DaytimeCost > 0)
         {
             if (!actionCopied)
             {
@@ -38,11 +37,11 @@ public static class ActionPathUtil
                 actionCopied = true;
             }
 
-            _Action.DaytimeCost -= (int)timeCostReduce;
-            _Action.TotalDaytimeCost -= (int)timeCostReduce;
+            _Action.DaytimeCost -= Mathf.RoundToInt(timeCostReduce);
+            _Action.TotalDaytimeCost -= Mathf.RoundToInt(timeCostReduce);
         }
 
-        if ((int)miniTimeCostReduce > 0 && _Action.DaytimeCost > 0)
+        if (Mathf.RoundToInt(miniTimeCostReduce) > 0 && _Action.DaytimeCost > 0)
         {
             if (!actionCopied)
             {
@@ -54,7 +53,7 @@ public static class ActionPathUtil
             }
 
             var fullMiniCost = _Action.DaytimeCost * 5 + _Action.MiniTicksCost;
-            fullMiniCost -= (int)miniTimeCostReduce;
+            fullMiniCost -= Mathf.RoundToInt(miniTimeCostReduce);
             _Action.DaytimeCost = fullMiniCost / 5;
             _Action.TotalDaytimeCost = fullMiniCost / 5;
             GameManager.Instance.CurrentMiniTicks += fullMiniCost % 5;
