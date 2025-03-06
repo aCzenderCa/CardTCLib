@@ -30,6 +30,7 @@ public static class UtilsPatch
                 {
                     withCards[i].CurrentSlot.RemoveSpecificCard(withCards[i], false);
                     withCards[i].CurrentContainer.RemoveCardFromInventory(withCards[i]);
+                    withCards[i].CurrentContainer = null;
                 }
 
                 GraphicsManager.Instance.MoveCardToSlot(withCards[i],
