@@ -12,6 +12,7 @@ public static class CardValueGetter
 
     public static float GetFloatValue(this InGameCardBase card, string key)
     {
+        if (!card || !card.CardModel || card.CardModel.TimeValues.IsNullOrEmpty()) return 0;
         var baseValue = card.CardModel.TimeValues
             .FirstOrDefault(objective => objective.ObjectiveName == key)?.Value * 0.001f ?? 0.0f;
         if (card.CardModel.HasFloatValue(TCCommonAttrs.EffectScaleByUsage))

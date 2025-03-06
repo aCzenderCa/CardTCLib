@@ -4,7 +4,7 @@ using HarmonyLib;
 
 namespace CardTCLib;
 
-[BepInPlugin("zender.CardTCLib.MainRuntime", "CardTCLib", "1.0.1")]
+[BepInPlugin("zender.CardTCLib.MainRuntime", "CardTCLib", "1.0.2")]
 [BepInDependency("Dop.plugin.CSTI.ModLoader")]
 public class MainRuntime : BaseUnityPlugin
 {
