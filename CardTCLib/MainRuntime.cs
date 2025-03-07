@@ -1,18 +1,21 @@
 ﻿using System.IO;
 using BepInEx;
 using CardTCLib.Const;
+using CardTCLib.LuaBridge;
 using CardTCLib.Patch;
 using HarmonyLib;
 using NLua;
 
 namespace CardTCLib;
 
-[BepInPlugin("zender.CardTCLib.MainRuntime", "CardTCLib", "1.0.3")]
+[BepInPlugin("zender.CardTCLib.MainRuntime", "CardTCLib", "1.0.6")]
 [BepInDependency("Dop.plugin.CSTI.ModLoader")]
 public class MainRuntime : BaseUnityPlugin
 {
     private static readonly Harmony HarmonyInstance = new("zender.CardTCLib.MainRuntime");
-    private static readonly Lua LuaEnv = new();
+    public static readonly Lua LuaEnv = new();
+    public static readonly Events Events = new();
+    public static readonly GameBridge Game = new();
 
     static MainRuntime()
     {
@@ -24,11 +27,16 @@ public class MainRuntime : BaseUnityPlugin
 
         SetupLuaEnv();
         // 在这注册modloader的事件
+
+        ModLoader.ModLoader.OnLoadMod += OnModLoaderSetup;
     }
 
     private static void SetupLuaEnv()
     {
         LuaEnv.LoadCLRPackage();
+
+        LuaEnv["Events"] = Events;
+        LuaEnv["Game"] = Game;
     }
 
     // modloader 加套事件系统
@@ -39,7 +47,7 @@ public class MainRuntime : BaseUnityPlugin
 
         foreach (var script in Directory.EnumerateFiles(setupScriptPath, "*.lua", SearchOption.AllDirectories))
         {
-            LuaEnv.DoFile(script);
+            LuaEnv.DoString(File.ReadAllText(script));
         }
     }
 }

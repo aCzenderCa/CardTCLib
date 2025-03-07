@@ -10,6 +10,15 @@ public static class CardValueGetter
         return cardData.TimeValues.FirstOrDefault(objective => objective.ObjectiveName == key) != null;
     }
 
+    public static float GetFloatValue(this CardData cardData, string key)
+    {
+        if (!cardData || cardData.TimeValues.IsNullOrEmpty()) return 0;
+        var baseValue = cardData.TimeValues
+            .FirstOrDefault(objective => objective.ObjectiveName == key)?.Value * 0.001f ?? 0.0f;
+
+        return baseValue;
+    }
+
     public static float GetFloatValue(this InGameCardBase card, string key)
     {
         if (!card || !card.CardModel || card.CardModel.TimeValues.IsNullOrEmpty()) return 0;
@@ -30,7 +39,7 @@ public static class CardValueGetter
 
     public static float CollectFloatValue(this InGameCardBase card, string key)
     {
-        if (!card || card.CardsInInventory.IsNullOrEmpty()) return 0;
+        if (!card) return 0;
         var value = card.GetFloatValue(key);
         foreach (var inventorySlot in card.CardsInInventory)
         {

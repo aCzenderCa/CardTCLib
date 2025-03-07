@@ -19,8 +19,9 @@ public static class TCEffectCardPatch
                 foreach (var inventorySlot in __instance.CardsInInventory)
                 {
                     var mainCard = inventorySlot.MainCard;
+                    if (mainCard == null) continue;
                     var itemUsageCost = mainCard.CollectFloatValue(TCCommonAttrs.ItemUsageCost);
-                    mainCard.ModifyDurability(DurabilitiesTypes.Usage, -itemUsageCost, false);
+                    GameManager.Instance.ChangeCardDurability(mainCard, -itemUsageCost, DurabilitiesTypes.Usage);
                 }
             }
         }
