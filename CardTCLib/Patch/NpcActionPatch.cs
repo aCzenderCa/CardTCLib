@@ -4,8 +4,10 @@ namespace CardTCLib.Patch;
 
 public static class NpcActionPatch
 {
-    [HarmonyPatch(typeof(NPCAction), nameof(NPCAction.ToAction)), HarmonyPostfix]
-    public static void NPCAction_ToAction_Post(NPCAction __instance, CardAction __result)
+    [HarmonyPatch(typeof(InGameCardBase), nameof(InGameCardBase.DropInInventory)), HarmonyPrefix]
+    public static bool CanBeDragged(InGameCardBase _Card)
     {
+        if (_Card.IsOwnedByNPC) return false;
+        return true;
     }
 }
