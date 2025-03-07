@@ -78,4 +78,8 @@
       </Reference>
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="NLua" Version="1.7.4" />
+    </ItemGroup>
+
 </Project>
