@@ -15,5 +15,7 @@ public class MainRuntime : BaseUnityPlugin
         HarmonyInstance.PatchAll(typeof(EffectWithSlotPatch));
         HarmonyInstance.PatchAll(typeof(TCEffectCardPatch));
         HarmonyInstance.PatchAll(typeof(UtilsPatch));
+        
+        HarmonyInstance.PatchAll(typeof(NpcActionPatch));
     }
 }

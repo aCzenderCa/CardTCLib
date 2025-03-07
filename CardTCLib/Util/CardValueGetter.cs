@@ -30,6 +30,7 @@ public static class CardValueGetter
 
     public static float CollectFloatValue(this InGameCardBase card, string key)
     {
+        if (!card || card.CardsInInventory.IsNullOrEmpty()) return 0;
         var value = card.GetFloatValue(key);
         foreach (var inventorySlot in card.CardsInInventory)
         {
