@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 using BepInEx;
 using CardTCLib.Const;
 using CardTCLib.LuaBridge;
@@ -8,12 +9,13 @@ using NLua;
 
 namespace CardTCLib;
 
-[BepInPlugin("zender.CardTCLib.MainRuntime", "CardTCLib", "1.0.6")]
+[BepInPlugin("zender.CardTCLib.MainRuntime", "CardTCLib", "1.0.7")]
 [BepInDependency("Dop.plugin.CSTI.ModLoader")]
 public class MainRuntime : BaseUnityPlugin
 {
     private static readonly Harmony HarmonyInstance = new("zender.CardTCLib.MainRuntime");
     public static readonly Lua LuaEnv = new();
+    public static readonly CoroutineHelper CoroutineHelper = new(LuaEnv);
     public static readonly Events Events = new();
     public static readonly GameBridge Game = new();
 
@@ -24,6 +26,7 @@ public class MainRuntime : BaseUnityPlugin
         HarmonyInstance.PatchAll(typeof(UtilsPatch));
 
         HarmonyInstance.PatchAll(typeof(NpcActionPatch));
+        HarmonyInstance.PatchAll(typeof(NpcCommonPatch));
 
         SetupLuaEnv();
         // 在这注册modloader的事件
@@ -33,9 +36,11 @@ public class MainRuntime : BaseUnityPlugin
 
     private static void SetupLuaEnv()
     {
+        LuaEnv.State.Encoding = Encoding.UTF8;
         LuaEnv.LoadCLRPackage();
 
         LuaEnv["Events"] = Events;
+        LuaEnv["CoroutineHelper"] = CoroutineHelper;
         LuaEnv["Game"] = Game;
     }
 
@@ -47,7 +52,7 @@ public class MainRuntime : BaseUnityPlugin
 
         foreach (var script in Directory.EnumerateFiles(setupScriptPath, "*.lua", SearchOption.AllDirectories))
         {
-            LuaEnv.DoString(File.ReadAllText(script));
+            LuaEnv.DoString(File.ReadAllText(script, Encoding.UTF8));
         }
     }
 }

@@ -26,13 +26,7 @@ public static class UtilsPatch
         {
             if (withCards[i].CurrentSlot != __instance.InventorySlotsLine.Slots[index])
             {
-                if (withCards[i].CurrentSlot?.SlotType == SlotsTypes.Inventory)
-                {
-                    withCards[i].CurrentSlot.RemoveSpecificCard(withCards[i], false);
-                    withCards[i].CurrentContainer.RemoveCardFromInventory(withCards[i]);
-                    withCards[i].CurrentContainer = null;
-                }
-
+                GraphicsManager.Instance.MoveCardToSlot(withCards[i], new SlotInfo(SlotsTypes.Base), true);
                 GraphicsManager.Instance.MoveCardToSlot(withCards[i],
                     __instance.InventorySlotsLine.Slots[index].ToInfo(), true);
             }

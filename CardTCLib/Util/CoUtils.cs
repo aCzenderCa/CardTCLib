@@ -8,8 +8,9 @@ namespace CardTCLib.Util;
 
 public static class CoUtils
 {
-    public static void StartCoWithBlockAction(IEnumerator enumerator)
+    public static void StartCoWithBlockAction(IEnumerator? enumerator)
     {
+        if (enumerator == null) return;
         GameManager.Instance.StartCoroutine(CoWithBlockAction(enumerator));
     }
 

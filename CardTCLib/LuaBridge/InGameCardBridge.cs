@@ -49,7 +49,7 @@ public class InGameCardBridge(InGameCardBase card)
                     return Card.CurrentSpecial4;
             }
 
-            return new UniqueIdObjectBridge(Card.CardModel)[key];
+            return new UniqueIdObjectBridge(Card.CardModel).GetItem(key);
         }
         set
         {
@@ -103,7 +103,7 @@ public class InGameCardBridge(InGameCardBase card)
         }
     }
 
-    private IEnumerator AddCardEnumerator(CardData cardData)
+    public IEnumerator AddCardEnum(CardData cardData)
     {
         var addCard = GameManager.Instance.AddCard(cardData, Card, true,
             GameManager.SpecialDrop.InsideCardInventory, null, null,
@@ -116,12 +116,12 @@ public class InGameCardBridge(InGameCardBase card)
     {
         if (obj.UniqueIDScriptable is CardData cardData)
         {
-            var addCard = AddCardEnumerator(cardData);
+            var addCard = AddCardEnum(cardData);
             CoUtils.StartCoWithBlockAction(addCard);
         }
     }
 
-    public IEnumerator DeleteEnumerator()
+    public IEnumerator DeleteEnum()
     {
         var removeCard = GameManager.Instance.RemoveCard(Card, false, false);
         return removeCard;
@@ -129,11 +129,11 @@ public class InGameCardBridge(InGameCardBase card)
 
     public void Delete()
     {
-        var removeCard = DeleteEnumerator();
+        var removeCard = DeleteEnum();
         CoUtils.StartCoWithBlockAction(removeCard);
     }
 
-    public void ResetInventory()
+    public IEnumerator? ResetInventoryEnum()
     {
         IEnumerator? enumerator = null;
         for (var i = 0; i < InventoryCardsCount; i++)
@@ -142,16 +142,41 @@ public class InGameCardBridge(InGameCardBase card)
             if (cardBridges == null) continue;
             foreach (var cardBridge in cardBridges)
             {
-                enumerator = enumerator.Then(cardBridge.DeleteEnumerator());
+                enumerator = enumerator.Then(cardBridge.DeleteEnum());
             }
         }
 
         foreach (var cardData in Card.CardModel.InventorySlots)
         {
-            enumerator = enumerator.Then(AddCardEnumerator(cardData));
+            enumerator = enumerator.Then(AddCardEnum(cardData));
         }
 
-        if (enumerator != null)
-            CoUtils.StartCoWithBlockAction(enumerator);
+        return enumerator;
+    }
+
+    public void ResetInventory()
+    {
+        CoUtils.StartCoWithBlockAction(ResetInventoryEnum());
+    }
+
+    public IEnumerator? ClearInventoryEnum()
+    {
+        IEnumerator? enumerator = null;
+        for (var i = 0; i < InventoryCardsCount; i++)
+        {
+            var cardBridges = this[i];
+            if (cardBridges == null) continue;
+            foreach (var cardBridge in cardBridges)
+            {
+                enumerator = enumerator.Then(cardBridge.DeleteEnum());
+            }
+        }
+
+        return enumerator;
+    }
+
+    public void ClearInventory()
+    {
+        CoUtils.StartCoWithBlockAction(ClearInventoryEnum());
     }
 }
