@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using CardTCLib.LuaBridge;
 using CardTCLib.Util;
 using HarmonyLib;
+using ModLoader;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -11,14 +12,10 @@ namespace CardTCLib.Patch;
 
 public static class UtilsPatch
 {
-    
     [HarmonyPatch(typeof(InGameCardBase), nameof(InGameCardBase.DestroyCard)), HarmonyPostfix]
     public static void InGameCardBase_DestroyCard_Post(InGameCardBase __instance, ref IEnumerator __result)
     {
-        __result = __result.OnEnumerator(onstart: () =>
-        {
-            InGameCardBridge.CardBridges.Remove(__instance);
-        });
+        __result = __result.OnEnumerator(onstart: () => { InGameCardBridge.CardBridges.Remove(__instance); });
     }
 
     [HarmonyPatch(typeof(BlueprintConstructionPopup), nameof(BlueprintConstructionPopup.AutoFill)), HarmonyPostfix]
@@ -138,6 +135,22 @@ public static class UtilsPatch
 
                     __instance.FillSlotFromAny(i, ref withCards2, blueprintStage.RequiredElements[i].GetQuantity);
                 }
+            }
+        }
+    }
+
+    [HarmonyAfter("Pikachu.CSTI.ModCore", "Pikachu.CSFF.ModCore")]
+    [HarmonyPriority(Priority.Low)]
+    [HarmonyPatch(typeof(GameLoad), nameof(GameLoad.LoadGameFilesData)), HarmonyPostfix]
+    public static void OnLoadGameFilesDataPost()
+    {
+        foreach (var (_, uniqueIDScriptable) in ModLoader.ModLoader.AllGUIDDict)
+        {
+            var uniqueIdObjectBridge = new UniqueIdObjectBridge(uniqueIDScriptable);
+            var nameChinese = uniqueIdObjectBridge.NameChinese;
+            if (!string.IsNullOrEmpty(nameChinese))
+            {
+                uniqueIDScriptable.name += $"_{nameChinese}";
             }
         }
     }
