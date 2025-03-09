@@ -2,7 +2,7 @@
 using CardTCLib.Util;
 using HarmonyLib;
 using UnityEngine;
-using static CardTCLib.Patch.ActionPathUtil;
+using static CardTCLib.Patch.ActionPatchUtil;
 
 namespace CardTCLib.Patch;
 

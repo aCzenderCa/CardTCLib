@@ -29,15 +29,16 @@ public static class NpcActionPatch
     public static void GameManager_ActionRoutine_Post(ref IEnumerator __result, CardAction _Action,
         InGameCardBase _ReceivingCard, InGameCardBase? _GivenCard)
     {
-        if (_Action.ActionName.ParentObjectID == null) return;
+        if (string.IsNullOrEmpty(_Action.ActionName.ParentObjectID)) return;
+        if (!MainRuntime.Events.HasEffect(_Action.ActionName.ParentObjectID)) return;
         __result = __result.OnEnumerator(() =>
         {
             MainRuntime.Events.NotifyCardAction(_Action.ActionName.ParentObjectID,
-                new InGameCardBridge(_ReceivingCard), _GivenCard != null ? new InGameCardBridge(_GivenCard) : null);
+                InGameCardBridge.Get(_ReceivingCard)!, _GivenCard != null ? InGameCardBridge.Get(_GivenCard) : null);
         }, () =>
         {
             MainRuntime.Events.NotifyCardActionEnd(_Action.ActionName.ParentObjectID,
-                new InGameCardBridge(_ReceivingCard), _GivenCard != null ? new InGameCardBridge(_GivenCard) : null);
+                InGameCardBridge.Get(_ReceivingCard)!, _GivenCard != null ? InGameCardBridge.Get(_GivenCard) : null);
         });
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using CardTCLib.LuaBridge;
 using CardTCLib.Util;
 using HarmonyLib;
 using UnityEngine;
@@ -9,6 +11,16 @@ namespace CardTCLib.Patch;
 
 public static class UtilsPatch
 {
+    
+    [HarmonyPatch(typeof(InGameCardBase), nameof(InGameCardBase.DestroyCard)), HarmonyPostfix]
+    public static void InGameCardBase_DestroyCard_Post(InGameCardBase __instance, ref IEnumerator __result)
+    {
+        __result = __result.OnEnumerator(onstart: () =>
+        {
+            InGameCardBridge.CardBridges.Remove(__instance);
+        });
+    }
+
     [HarmonyPatch(typeof(BlueprintConstructionPopup), nameof(BlueprintConstructionPopup.AutoFill)), HarmonyPostfix]
     public static void BlueprintConstructionPopup_AutoFill(BlueprintConstructionPopup __instance)
     {

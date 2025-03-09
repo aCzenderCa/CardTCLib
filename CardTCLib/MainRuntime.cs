@@ -5,11 +5,12 @@ using CardTCLib.Const;
 using CardTCLib.LuaBridge;
 using CardTCLib.Patch;
 using HarmonyLib;
+using ModLoader;
 using NLua;
 
 namespace CardTCLib;
 
-[BepInPlugin("zender.CardTCLib.MainRuntime", "CardTCLib", "1.0.7")]
+[BepInPlugin("zender.CardTCLib.MainRuntime", "CardTCLib", "1.0.8")]
 [BepInDependency("Dop.plugin.CSTI.ModLoader")]
 public class MainRuntime : BaseUnityPlugin
 {
@@ -32,6 +33,18 @@ public class MainRuntime : BaseUnityPlugin
         // 在这注册modloader的事件
 
         ModLoader.ModLoader.OnLoadMod += OnModLoaderSetup;
+        ModLoader.ModLoader.OnLoadModComplete += () =>
+        {
+            foreach (var (_, uniqueIDScriptable) in ModLoader.ModLoader.AllGUIDDict)
+            {
+                var uniqueIdObjectBridge = new UniqueIdObjectBridge(uniqueIDScriptable);
+                var nameChinese = uniqueIdObjectBridge.NameChinese;
+                if (!string.IsNullOrEmpty(nameChinese))
+                {
+                    uniqueIDScriptable.name += $"_{nameChinese}";
+                }
+            }
+        };
     }
 
     private static void SetupLuaEnv()

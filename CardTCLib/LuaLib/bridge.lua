@@ -24,8 +24,10 @@ CoroutineHelper = {}
 
 ---@alias FadeToBlackTypes ("None"|"Partial"|"Full")
 ---@alias CardActionType ("CardAction"|"CardOnCardAction"|"DismantleCardAction"|"FromStatChangeAction")
+---@alias CardTypes ("Item"|"Base"|"Location"|"Event"|"Environment"|"Weather"|"Hand"|"Blueprint"|"Explorable"|"Liquid"|"EnvImprovement"|"EnvDamage"|"BlueprintInLocation"|"InvisibleCard")
 ---@class GameBridge
 ---@field CreateAction fun(self:GameBridge,id:string,name:string,type:CardActionType):CardActionBridge
+---@field CreateCard fun(self:GameBridge,id:string,name:string,type:CardTypes,icon:string):UniqueIdObjectBridge
 ---@field Log fun(self:GameBridge,message:string)
 ---@field PassTime fun(self:GameBridge,miniTick:number,fromCard:InGameCardBridge,blockable:boolean,fadeType:FadeToBlackTypes,fadeText:string)
 ---@field PassTimeEnum fun(self:GameBridge,miniTick:number,fromCard:InGameCardBridge,blockable:boolean,fadeType:FadeToBlackTypes,fadeText:string):IEnumerator
@@ -47,11 +49,13 @@ Game = {}
 ---@field Name string
 ---@field NameLocal string
 ---@field NameChinese string
+---@field SetIcon fun(self:UniqueIdObjectBridge,icon:string)
 ---@field GetItem fun(self:UniqueIdObjectBridge,key:string):number
 ---@field SetItem fun(self:UniqueIdObjectBridge,key:string):number
-UniqueIdObjectBridge = {}
 
 ---@class InGameCardBridge
+---@field SetExtraValue fun(self:InGameCardBridge,key:string,val:string|number)
+---@field GetExtraValue fun(self:InGameCardBridge,key:string):string|number|nil
 ---@field AddCard fun(self:InGameCardBridge,obj:UniqueIdObjectBridge)
 ---@field AddCardEnum fun(self:InGameCardBridge,obj:UniqueIdObjectBridge):IEnumerator
 ---@field Delete fun(self:InGameCardBridge)
@@ -60,8 +64,9 @@ UniqueIdObjectBridge = {}
 ---@field ResetInventoryEnum fun(self:InGameCardBridge):IEnumerator
 ---@field ClearInventory fun(self:InGameCardBridge)
 ---@field ClearInventoryEnum fun(self:InGameCardBridge):IEnumerator
+---@field TransformTo fun(self:InGameCardBridge,target:UniqueIdObjectBridge)
+---@field TransformToEnum fun(self:InGameCardBridge,target:UniqueIdObjectBridge):IEnumerator
 ---@field InventoryCardsCount number
----@field get_Item fun(self:InGameCardBridge,idx:number):InGameCardBridge[]
+---@field GetItem fun(self:InGameCardBridge,idx:number):InGameCardBridge[]
 ---@field get_Item fun(self:InGameCardBridge,key:string):number
 ---@field set_Item fun(self:InGameCardBridge,key:string,val:number)
-InGameCardBridge = {}

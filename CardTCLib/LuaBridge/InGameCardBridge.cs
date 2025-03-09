@@ -1,28 +1,124 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using BepInEx;
 using CardTCLib.Util;
+using gfoidl.Base64;
+using ModLoader;
 using UnityEngine;
 
 namespace CardTCLib.LuaBridge;
 
-public class InGameCardBridge(InGameCardBase card)
+public class InGameCardBridge
 {
-    public readonly InGameCardBase Card = card;
+    public readonly Dictionary<string, CommonValue> ExtraValues = new();
+    public static readonly Regex ExtraValueRegex = new(@"\[_TCLib__Ex_\](?<b64>.*)", RegexOptions.Compiled);
 
-    public int InventoryCardsCount => Card.CardsInInventory.Count;
-
-    public InGameCardBridge[]? this[int index]
+    public void SaveExtraValues()
     {
-        get
-        {
-            if (Card.IsInventoryCard && index < Card.CardsInInventory.Count)
-            {
-                var inventorySlot = Card.CardsInInventory[index];
-                return inventorySlot.AllCards.Select(card => new InGameCardBridge(card)).ToArray();
-            }
+        var memoryStream = new MemoryStream();
+        var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
+        writer.Write(ExtraValues);
+        writer.Flush();
+        var base64Str = Base64.Default.Encode(memoryStream.ToArray());
+        var key = Card.DroppedCollections.FirstOrDefault(pair => ExtraValueRegex.IsMatch(pair.Key)).Key;
+        if (!key.IsNullOrWhiteSpace()) Card.DroppedCollections.Remove(key);
 
+        Card.DroppedCollections[$"[_TCLib__Ex_]{base64Str}"] = Vector2Int.zero;
+    }
+
+    public void LoadExtraValues()
+    {
+        var extraValueData = Card.DroppedCollections.FirstOrDefault(pair => ExtraValueRegex.IsMatch(pair.Key)).Key;
+        if (!extraValueData.IsNullOrWhiteSpace())
+        {
+            var value = ExtraValueRegex.Match(extraValueData).Groups["b64"].Value;
+            var decode = Base64.Default.Decode(value.ToCharArray());
+            var reader = new BinaryReader(new MemoryStream(decode));
+            var commonValueTable = reader.ReadCommonValueTable();
+            foreach (var (key, val) in commonValueTable)
+            {
+                ExtraValues[key] = val;
+            }
+        }
+    }
+
+    public void SetExtraValue(string key, object value)
+    {
+        ExtraValues[key] = new CommonValue(value);
+        SaveExtraValues();
+    }
+
+    public object? GetExtraValue(string key)
+    {
+        if (ExtraValues.TryGetValue(key, out var value))
+        {
+            return value.Value;
+        }
+
+        return null;
+    }
+
+    public static InGameCardBridge? Get(InGameCardBase? card)
+    {
+        if (card == null) return null;
+        try
+        {
+            if (CardBridges.TryGetValue(card, out var reference))
+            {
+                if (reference.TryGetTarget(out var cardBridge))
+                {
+                    return cardBridge;
+                }
+
+                cardBridge = new InGameCardBridge(card);
+                reference.SetTarget(cardBridge);
+                return cardBridge;
+            }
+            else
+            {
+                var cardBridge = new InGameCardBridge(card);
+                CardBridges[card] = new WeakReference<InGameCardBridge>(cardBridge);
+                return cardBridge;
+            }
+        }
+        catch (Exception e)
+        {
+            if (card != null) Get(card);
             return null;
         }
+    }
+
+    public static readonly Dictionary<InGameCardBase, WeakReference<InGameCardBridge>> CardBridges = [];
+    public readonly InGameCardBase Card;
+
+    private InGameCardBridge(InGameCardBase card)
+    {
+        Card = card;
+        LoadExtraValues();
+    }
+
+    ~InGameCardBridge()
+    {
+        CardBridges.Remove(Card);
+    }
+
+    public int InventoryCardsCount => Card.CardsInInventory.Count;
+    public static Vector2Int CurrentTickForAddCard => new(GameManager.Instance.CurrentTickInfo.z, 0);
+
+    public InGameCardBridge[] GetItem(int index)
+    {
+        if (Card.IsInventoryCard && index < Card.CardsInInventory.Count)
+        {
+            var inventorySlot = Card.CardsInInventory[index];
+            return inventorySlot.AllCards.Where(card => card != null).Select(card => Get(card)!).ToArray();
+        }
+
+        return [];
     }
 
     public float this[string key]
@@ -108,7 +204,7 @@ public class InGameCardBridge(InGameCardBase card)
         var addCard = GameManager.Instance.AddCard(cardData, Card, true,
             GameManager.SpecialDrop.InsideCardInventory, null, null,
             null, null, true, SpawningLiquid.DefaultLiquid,
-            new Vector2Int(GameManager.Instance.CurrentTickInfo.z, 0), null, _MoveView: false);
+            CurrentTickForAddCard, null, _MoveView: false);
         return addCard;
     }
 
@@ -121,9 +217,9 @@ public class InGameCardBridge(InGameCardBase card)
         }
     }
 
-    public IEnumerator DeleteEnum()
+    public IEnumerator DeleteEnum(bool doDrop = false)
     {
-        var removeCard = GameManager.Instance.RemoveCard(Card, false, false);
+        var removeCard = GameManager.Instance.RemoveCard(Card, false, doDrop);
         return removeCard;
     }
 
@@ -138,8 +234,7 @@ public class InGameCardBridge(InGameCardBase card)
         IEnumerator? enumerator = null;
         for (var i = 0; i < InventoryCardsCount; i++)
         {
-            var cardBridges = this[i];
-            if (cardBridges == null) continue;
+            var cardBridges = GetItem(i);
             foreach (var cardBridge in cardBridges)
             {
                 enumerator = enumerator.Then(cardBridge.DeleteEnum());
@@ -164,8 +259,7 @@ public class InGameCardBridge(InGameCardBase card)
         IEnumerator? enumerator = null;
         for (var i = 0; i < InventoryCardsCount; i++)
         {
-            var cardBridges = this[i];
-            if (cardBridges == null) continue;
+            var cardBridges = GetItem(i);
             foreach (var cardBridge in cardBridges)
             {
                 enumerator = enumerator.Then(cardBridge.DeleteEnum());
@@ -178,5 +272,24 @@ public class InGameCardBridge(InGameCardBase card)
     public void ClearInventory()
     {
         CoUtils.StartCoWithBlockAction(ClearInventoryEnum());
+    }
+
+    public IEnumerator? TransformToEnum(UniqueIdObjectBridge uniqueIdObjectBridge)
+    {
+        if (uniqueIdObjectBridge.UniqueIDScriptable is not CardData cardData) return null;
+
+        var addCard = GameManager.Instance.AddCard(cardData, Card.CurrentContainer, true,
+            GameManager.SpecialDrop.InsideCardInventory, Card.GetDurabilities(), Card.BlueprintData,
+            Card.CurrentFlavours, Card.CurrentSpices, false,
+            Card.ContainedLiquid ? new SpawningLiquid(Card.ContainedLiquid.CardModel) : SpawningLiquid.DefaultLiquid,
+            CurrentTickForAddCard, Card.TravelTarget.DictionnaryKey, _MoveView: false);
+
+        var e = addCard.Then(DeleteEnum());
+        return e;
+    }
+
+    public void TransformTo(UniqueIdObjectBridge uniqueIdObjectBridge)
+    {
+        CoUtils.StartCoWithBlockAction(TransformToEnum(uniqueIdObjectBridge));
     }
 }

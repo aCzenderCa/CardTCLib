@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
+using BepInEx;
 using CardTCLib.Util;
 using HarmonyLib;
 using UnityEngine;
@@ -57,6 +58,26 @@ public class GameBridge
         }
 
         return new CardActionBridge(action);
+    }
+
+    public UniqueIdObjectBridge CreateCard(string id, string name, string type, string icon = "")
+    {
+        var cardData = ScriptableObject.CreateInstance<CardData>();
+        cardData.UniqueID = id;
+        cardData.name = name;
+        cardData.CardName = new LocalizedString { DefaultText = name, LocalizationKey = id + "_" + name };
+        if (Enum.TryParse<CardTypes>(type, out var cardType))
+        {
+            cardData.CardType = cardType;
+        }
+
+        var uniqueIdObjectBridge = new UniqueIdObjectBridge(cardData);
+        if (!icon.IsNullOrWhiteSpace())
+        {
+            uniqueIdObjectBridge.SetIcon(icon);
+        }
+
+        return uniqueIdObjectBridge;
     }
 
     public IEnumerator PassTimeEnum(int miniTick, InGameCardBridge? fromCard = null, bool blockable = true,

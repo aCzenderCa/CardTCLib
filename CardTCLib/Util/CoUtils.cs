@@ -29,7 +29,7 @@ public static class CoUtils
         GameManager.Instance.QueuedCardActions.RemoveAt(0);
     }
 
-    public static IEnumerator OnEnumerator(this IEnumerator enumerator, Action? onstart, Action? onfinish)
+    public static IEnumerator OnEnumerator(this IEnumerator enumerator, Action? onstart = null, Action? onfinish = null)
     {
         onstart?.Invoke();
         while (enumerator.MoveNext())

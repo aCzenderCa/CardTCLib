@@ -79,6 +79,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="gfoidl.Base64" Version="1.1.2" />
       <PackageReference Include="NLua" Version="1.7.4" />
     </ItemGroup>
 

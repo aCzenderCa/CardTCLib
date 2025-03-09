@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using CardTCLib.Util;
 using HarmonyLib;
 using ModLoader;
+using ModLoader.LoaderUtil;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -268,6 +269,21 @@ public class UniqueIdObjectBridge(UniqueIDScriptable? uniqueIDScriptable)
                 }
 
                 break;
+        }
+    }
+
+    public void SetIcon(string icon)
+    {
+        if (UniqueIDScriptable is CardData cardData)
+        {
+            if (ModLoader.ModLoader.SpriteDict.TryGetValue(icon, out var sprite))
+            {
+                cardData.CardImage = sprite;
+            }
+            else
+            {
+                cardData.PostSetEnQueue((card, sp) => ((CardData)card).CardImage = (Sprite)sp, icon);
+            }
         }
     }
 }
