@@ -110,17 +110,17 @@ public static class ActionPatchUtil
                 {
                     var modifier = statModification.ValueModifier;
                     if (modifier.x > 0 || modifier.y > 0) continue;
-                    modifier.x = Mathf.Min(0f, modifier.x + commonWorkCostReduce);
-                    modifier.y = Mathf.Min(0f, modifier.y + commonWorkCostReduce);
+                    modifier.x = Mathf.Max(0f, modifier.x - commonWorkCostReduce);
+                    modifier.y = Mathf.Max(0f, modifier.y - commonWorkCostReduce);
                     actionStatModifications[i].ValueModifier = modifier;
                 }
 
                 if (statModification.Stat && statModification.Stat.UniqueID == StatUids.FootDamage_足部损伤)
                 {
                     var modifier = statModification.ValueModifier;
-                    if (modifier.x > 0 || modifier.y > 0) continue;
-                    modifier.x = Mathf.Min(0f, modifier.x + commonWorkCostReduce);
-                    modifier.y = Mathf.Min(0f, modifier.y + commonWorkCostReduce);
+                    if (modifier.x < 0 || modifier.y < 0) continue;
+                    modifier.x = Mathf.Max(0f, modifier.x - commonWorkCostReduce);
+                    modifier.y = Mathf.Max(0f, modifier.y - commonWorkCostReduce);
                     actionStatModifications[i].ValueModifier = modifier;
                 }
             }

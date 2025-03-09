@@ -67,6 +67,10 @@ Game = {}
 ---@field TransformTo fun(self:InGameCardBridge,target:UniqueIdObjectBridge)
 ---@field TransformToEnum fun(self:InGameCardBridge,target:UniqueIdObjectBridge):IEnumerator
 ---@field InventoryCardsCount number
+---@field HasTag fun(self:InGameCardBridge,tag:string):boolean
 ---@field GetItem fun(self:InGameCardBridge,idx:number):InGameCardBridge[]
----@field get_Item fun(self:InGameCardBridge,key:string):number
----@field set_Item fun(self:InGameCardBridge,key:string,val:number)
+---@field GetDurability fun(self:InGameCardBridge,key:string):number
+---@field SetDurability fun(self:InGameCardBridge,key:string,val:number)
+---@field SetDurabilityEnum fun(self:InGameCardBridge,key:string,val:number):IEnumerator
+---@field AddDurability fun(self:InGameCardBridge,key:string,val:number)
+---@field AddDurabilityEnum fun(self:InGameCardBridge,key:string,val:number):IEnumerator

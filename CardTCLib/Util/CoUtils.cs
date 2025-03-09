@@ -17,16 +17,16 @@ public static class CoUtils
     private static IEnumerator CoWithBlockAction(IEnumerator enumerator)
     {
         var s = Time.frameCount + new Random().Next().ToString();
-        GameManager.Instance.QueuedCardActions.Add(new InGameActionRef { Message = s });
         while (GameManager.Instance.QueuedCardActions.Count > 0 &&
                GameManager.Instance.QueuedCardActions.FirstOrDefault().Message != s)
         {
             yield return null;
         }
 
-        yield return GameManager.Instance.StartCoroutine(enumerator);
-
-        GameManager.Instance.QueuedCardActions.RemoveAt(0);
+        while (enumerator.MoveNext())
+        {
+            yield return enumerator.Current;
+        }
     }
 
     public static IEnumerator OnEnumerator(this IEnumerator enumerator, Action? onstart = null, Action? onfinish = null)

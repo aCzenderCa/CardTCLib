@@ -121,82 +121,114 @@ public class InGameCardBridge
         return [];
     }
 
-    public float this[string key]
+    public float GetDurability(string key)
     {
-        get
+        switch (key)
         {
-            switch (key)
-            {
-                case "Usage":
-                    return Card.CurrentUsageDurability;
-                case "Fuel":
-                    return Card.CurrentFuel;
-                case "Progress":
-                    return Card.CurrentProgress;
-                case "Spoilage":
-                    return Card.CurrentSpoilage;
-                case "Special1":
-                    return Card.CurrentSpecial1;
-                case "Special2":
-                    return Card.CurrentSpecial2;
-                case "Special3":
-                    return Card.CurrentSpecial3;
-                case "Special4":
-                    return Card.CurrentSpecial4;
-            }
-
-            return new UniqueIdObjectBridge(Card.CardModel).GetItem(key);
+            case "Usage":
+                return Card.CurrentUsageDurability;
+            case "Fuel":
+                return Card.CurrentFuel;
+            case "Progress":
+                return Card.CurrentProgress;
+            case "Spoilage":
+                return Card.CurrentSpoilage;
+            case "Special1":
+                return Card.CurrentSpecial1;
+            case "Special2":
+                return Card.CurrentSpecial2;
+            case "Special3":
+                return Card.CurrentSpecial3;
+            case "Special4":
+                return Card.CurrentSpecial4;
         }
-        set
+
+        return new UniqueIdObjectBridge(Card.CardModel).GetItem(key);
+    }
+
+    public void SetDurability(string key, float value)
+    {
+        CoUtils.StartCoWithBlockAction(SetDurabilityEnum(key, value));
+    }
+
+    public IEnumerator? SetDurabilityEnum(string key, float value)
+    {
+        IEnumerator? changeEnumerator = null;
+        switch (key)
         {
-            IEnumerator? changeEnumerator = null;
-            switch (key)
-            {
-                case "Usage":
-                    changeEnumerator = GameManager.Instance.ChangeCardDurabilities(Card, 0, value - this[key], 0,
-                        0, 0, 0, 0, 0, 0, false,
-                        false);
-                    break;
-                case "Fuel":
-                    changeEnumerator = GameManager.Instance.ChangeCardDurabilities(Card, 0, 0, value - this[key],
-                        0, 0, 0, 0, 0, 0, false,
-                        false);
-                    break;
-                case "Progress":
-                    changeEnumerator = GameManager.Instance.ChangeCardDurabilities(Card, 0, 0, 0, value - this[key], 0,
-                        0, 0, 0, 0, false,
-                        false);
-                    break;
-                case "Spoilage":
-                    changeEnumerator = GameManager.Instance.ChangeCardDurabilities(Card, value - this[key], 0, 0,
-                        0, 0, 0, 0, 0, 0, false,
-                        false);
-                    break;
-                case "Special1":
-                    changeEnumerator = GameManager.Instance.ChangeCardDurabilities(Card, 0, 0, 0,
-                        0, 0, value - this[key], 0, 0, 0, false,
-                        false);
-                    break;
-                case "Special2":
-                    changeEnumerator = GameManager.Instance.ChangeCardDurabilities(Card, 0, 0, 0,
-                        0, 0, 0, value - this[key], 0, 0, false,
-                        false);
-                    break;
-                case "Special3":
-                    changeEnumerator = GameManager.Instance.ChangeCardDurabilities(Card, 0, 0, 0,
-                        0, 0, 0, 0, value - this[key], 0, false,
-                        false);
-                    break;
-                case "Special4":
-                    changeEnumerator = GameManager.Instance.ChangeCardDurabilities(Card, 0, 0, 0,
-                        0, 0, 0, 0, 0, value - this[key], false,
-                        false);
-                    break;
-            }
-
-            if (changeEnumerator != null)
-                CoUtils.StartCoWithBlockAction(changeEnumerator);
+            case "Usage":
+                changeEnumerator = GameManager.Instance.ChangeCardDurabilities(Card, 0, value - GetDurability(key), 0,
+                    0, 0, 0, 0, 0, 0, false,
+                    false);
+                break;
+            case "Fuel":
+                changeEnumerator = GameManager.Instance.ChangeCardDurabilities(Card, 0, 0, value - GetDurability(key),
+                    0, 0, 0, 0, 0, 0, false,
+                    false);
+                break;
+            case "Progress":
+                changeEnumerator = GameManager.Instance.ChangeCardDurabilities(Card, 0, 0, 0,
+                    value - GetDurability(key), 0,
+                    0, 0, 0, 0, false,
+                    false);
+                break;
+            case "Spoilage":
+                changeEnumerator = GameManager.Instance.ChangeCardDurabilities(Card, value - GetDurability(key), 0, 0,
+                    0, 0, 0, 0, 0, 0, false,
+                    false);
+                break;
+            case "Special1":
+                changeEnumerator = GameManager.Instance.ChangeCardDurabilities(Card, 0, 0, 0,
+                    0, 0, value - GetDurability(key), 0, 0, 0, false,
+                    false);
+                break;
+            case "Special2":
+                changeEnumerator = GameManager.Instance.ChangeCardDurabilities(Card, 0, 0, 0,
+                    0, 0, 0, value - GetDurability(key), 0, 0, false,
+                    false);
+                break;
+            case "Special3":
+                changeEnumerator = GameManager.Instance.ChangeCardDurabilities(Card, 0, 0, 0,
+                    0, 0, 0, 0, value - GetDurability(key), 0, false,
+                    false);
+                break;
+            case "Special4":
+                changeEnumerator = GameManager.Instance.ChangeCardDurabilities(Card, 0, 0, 0,
+                    0, 0, 0, 0, 0, value - GetDurability(key), false,
+                    false);
+                break;
         }
+
+        return changeEnumerator;
+    }
+
+    public void AddDurability(string key, float value)
+    {
+        CoUtils.StartCoWithBlockAction(AddDurabilityEnum(key, value));
+    }
+
+    public IEnumerator? AddDurabilityEnum(string key, float value)
+    {
+        var changeEnumerator = key switch
+        {
+            "Usage" => GameManager.Instance.ChangeCardDurabilities(Card, 0, value, 0, 0, 0, 0, 0, 0, 0, false, false),
+            "Fuel" => GameManager.Instance.ChangeCardDurabilities(Card, 0, 0, value, 0, 0, 0, 0, 0, 0, false, false),
+            "Progress" => GameManager.Instance.ChangeCardDurabilities(Card, 0, 0, 0, value, 0,
+                0, 0, 0, 0, false, false),
+            "Spoilage" => GameManager.Instance.ChangeCardDurabilities(Card, value, 0, 0,
+                0, 0, 0, 0, 0, 0, false, false),
+            "Special1" => GameManager.Instance.ChangeCardDurabilities(Card, 0, 0, 0,
+                0, 0, value, 0, 0, 0, false, false),
+            "Special2" => GameManager.Instance.ChangeCardDurabilities(Card, 0, 0, 0,
+                0, 0, 0, value, 0, 0, false, false),
+            "Special3" => GameManager.Instance.ChangeCardDurabilities(Card, 0, 0, 0,
+                0, 0, 0, 0, value, 0, false, false),
+            "Special4" => GameManager.Instance.ChangeCardDurabilities(Card, 0, 0, 0,
+                0, 0, 0, 0, 0, value, false, false),
+            _ => null
+        };
+
+        return changeEnumerator;
     }
 
     public IEnumerator AddCardEnum(CardData cardData)
@@ -291,5 +323,11 @@ public class InGameCardBridge
     public void TransformTo(UniqueIdObjectBridge uniqueIdObjectBridge)
     {
         CoUtils.StartCoWithBlockAction(TransformToEnum(uniqueIdObjectBridge));
+    }
+
+    public bool HasTag(string tag)
+    {
+        return Card.CardModel && Card.CardModel.CardTags.Any(cardTag =>
+            cardTag.name == tag || cardTag.InGameName == tag || cardTag.InGameName.DefaultText == tag);
     }
 }

@@ -10,7 +10,7 @@ using NLua;
 
 namespace CardTCLib;
 
-[BepInPlugin("zender.CardTCLib.MainRuntime", "CardTCLib", "1.0.8")]
+[BepInPlugin("zender.CardTCLib.MainRuntime", "CardTCLib", "1.1.2")]
 [BepInDependency("Dop.plugin.CSTI.ModLoader")]
 public class MainRuntime : BaseUnityPlugin
 {
@@ -65,7 +65,7 @@ public class MainRuntime : BaseUnityPlugin
 
         foreach (var script in Directory.EnumerateFiles(setupScriptPath, "*.lua", SearchOption.AllDirectories))
         {
-            LuaEnv.DoString(File.ReadAllText(script, Encoding.UTF8));
+            LuaEnv.DoString(File.ReadAllText(script, Encoding.UTF8), script);
         }
     }
 }
