@@ -15,13 +15,13 @@ public static class ActionPatchUtil
         var commonWorkDamageReduce = 0f;
         var actionCopied = _Action.ActionName.LocalizationKey == "__copied__";
         if (actionCopied) return _Action;
-        if (_ReceivingCard.IsTCTool())
+        if (_ReceivingCard.IsTCTool() || _ReceivingCard?.CardModel.CardType is CardTypes.Blueprint or CardTypes.BlueprintInLocation)
         {
             timeCostReduce = _ReceivingCard.CollectFloatValue(TCToolAttrs.TimeCostReduce);
             miniTimeCostReduce = _ReceivingCard.CollectFloatValue(TCToolAttrs.MiniTimeCostReduce);
         }
 
-        if (_GivenCard.IsTCTool())
+        if (_GivenCard.IsTCTool() || _GivenCard?.CardModel.CardType is CardTypes.Blueprint or CardTypes.BlueprintInLocation)
         {
             timeCostReduce = Mathf.Max(_GivenCard.CollectFloatValue(TCToolAttrs.TimeCostReduce), timeCostReduce);
             miniTimeCostReduce = Mathf.Max(_GivenCard.CollectFloatValue(TCToolAttrs.MiniTimeCostReduce),

@@ -60,9 +60,10 @@ public class GameBridge
         return new CardActionBridge(action);
     }
 
-    public UniqueIdObjectBridge CreateCard(string id, string name, string type, string icon = "")
+    public UniqueIdObjectBridge CreateCard(string id, string name, string type, string? icon = null)
     {
-        var cardData = ScriptableObject.CreateInstance<CardData>();
+        icon ??= "icon_" + id;
+        var cardData = (CardData)ModLoader.LoaderUtil.ScriptableUtil.CreateInstance(typeof(CardData));
         cardData.UniqueID = id;
         cardData.name = name;
         cardData.CardName = new LocalizedString { DefaultText = name, LocalizationKey = id + "_" + name };
@@ -71,6 +72,10 @@ public class GameBridge
             cardData.CardType = cardType;
         }
 
+        UniqueIDScriptable.AllUniqueObjects[id] = cardData;
+        ModLoader.ModLoader.AllGUIDDict[id] = cardData;
+        ModLoader.ModLoader.AllGUIDTypeDict[typeof(CardData)][id] = cardData;
+        cardData.Init();
         var uniqueIdObjectBridge = new UniqueIdObjectBridge(cardData);
         if (!icon.IsNullOrWhiteSpace())
         {

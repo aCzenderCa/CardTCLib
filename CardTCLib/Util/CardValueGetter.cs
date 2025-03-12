@@ -44,7 +44,7 @@ public static class CardValueGetter
         foreach (var inventorySlot in card.CardsInInventory)
         {
             if (inventorySlot.CardModel)
-                value += inventorySlot.MainCard.GetFloatValue(key);
+                value += inventorySlot.MainCard.CollectFloatValue(key);
         }
 
         return value;

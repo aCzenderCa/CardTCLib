@@ -82,5 +82,9 @@
       <PackageReference Include="gfoidl.Base64" Version="1.1.2" />
       <PackageReference Include="NLua" Version="1.7.4" />
     </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="LuaLib/bridge1.lua" LogicalName="lua_bridge1"/>
+  </ItemGroup>
 
 </Project>

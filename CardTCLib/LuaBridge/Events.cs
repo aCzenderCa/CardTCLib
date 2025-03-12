@@ -8,12 +8,18 @@ public class Events
     public delegate void ObCardActionDelegate(InGameCardBridge rec, InGameCardBridge? give);
 
     private Action _modLoadComplete;
+    private Action _modLoadCompletePost;
     private readonly Dictionary<string, ObCardActionDelegate> _onActions = new();
     private readonly Dictionary<string, ObCardActionDelegate> _onEndActions = new();
 
     public void RegModLoadComplete(Action action)
     {
         _modLoadComplete += action;
+    }
+    
+    public void RegModLoadCompletePost(Action action)
+    {
+        _modLoadCompletePost += action;
     }
 
     public void RegOnAction(string key, ObCardActionDelegate action)
@@ -67,6 +73,11 @@ public class Events
     }
 
     protected virtual void OnModLoadComplete()
+    {
+        _modLoadComplete?.Invoke();
+    }
+
+    public void OnModLoadCompletePost()
     {
         _modLoadComplete?.Invoke();
     }

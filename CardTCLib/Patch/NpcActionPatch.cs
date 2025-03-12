@@ -29,6 +29,7 @@ public static class NpcActionPatch
     public static void GameManager_ActionRoutine_Post(ref IEnumerator __result, CardAction _Action,
         InGameCardBase _ReceivingCard, InGameCardBase? _GivenCard)
     {
+        
         if (string.IsNullOrEmpty(_Action.ActionName.ParentObjectID)) return;
         if (!MainRuntime.Events.HasEffect(_Action.ActionName.ParentObjectID)) return;
         __result = __result.OnEnumerator(() =>

@@ -153,5 +153,16 @@ public static class UtilsPatch
                 uniqueIDScriptable.name += $"_{nameChinese}";
             }
         }
+
+        MainRuntime.Events.OnModLoadCompletePost();
+    }
+
+    [HarmonyPatch(typeof(GameManager), nameof(GameManager.Awake)), HarmonyPostfix]
+    public static void OnEnterGame()
+    {
+        foreach (var (cardData, (mainTab, subTab)) in UniqueIdObjectBridge.BpCardTabs)
+        {
+            new UniqueIdObjectBridge(cardData).SetBpTab(mainTab, subTab, needRemoveOld: false);
+        }
     }
 }

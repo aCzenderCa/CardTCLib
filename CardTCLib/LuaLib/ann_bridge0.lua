@@ -14,6 +14,7 @@
 
 ---@class Events
 ---@field RegModLoadComplete fun(self:Events,action:fun():void)
+---@field RegModLoadCompletePost fun(self:Events,action:fun():void)
 ---@field RegOnAction fun(self:Events,key:string,action:ObCardActionDelegate))
 ---@field RegOnEndAction fun(self:Events,key:string,action:ObCardActionDelegate))
 Events = {}
@@ -38,6 +39,13 @@ Game = {}
 ---@class CardActionBridge
 
 ---@class UniqueIdObjectBridge
+---@field GetTValue fun(self:UniqueIdObjectBridge,key:string):number
+---@field SetTValue fun(self:UniqueIdObjectBridge,key:string,val:number)
+---
+---@field SetBpResults fun(self:UniqueIdObjectBridge,data:CountedCard[])
+---@field SetBpStage fun(self:UniqueIdObjectBridge,idx:number,data:BpStageEle[])
+---@field SetBpTab fun(self:UniqueIdObjectBridge,mainTab:string,subTab:string)
+---
 ---@field GenNpcCardModel fun(self:UniqueIdObjectBridge):UniqueIdObjectBridge
 ---@field AddAction fun(self:UniqueIdObjectBridge,action:CardActionBridge)
 ---@field RemoveAction fun(self:UniqueIdObjectBridge,type:CardActionType,id:string)
@@ -52,6 +60,10 @@ Game = {}
 ---@field SetIcon fun(self:UniqueIdObjectBridge,icon:string)
 ---@field GetItem fun(self:UniqueIdObjectBridge,key:string):number
 ---@field SetItem fun(self:UniqueIdObjectBridge,key:string):number
+---@field Weight number
+---@field MaxWeightCapacity number
+---@field AddSlot fun(self:UniqueIdObjectBridge,add:UniqueIdObjectBridge|nil)
+---@field RemoveSlot fun(self:UniqueIdObjectBridge,idx:number)
 
 ---@class InGameCardBridge
 ---@field SetExtraValue fun(self:InGameCardBridge,key:string,val:string|number)

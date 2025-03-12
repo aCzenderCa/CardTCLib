@@ -9,7 +9,7 @@ using NLua;
 
 namespace CardTCLib;
 
-[BepInPlugin("zender.CardTCLib.MainRuntime", "CardTCLib", "1.1.3")]
+[BepInPlugin("zender.CardTCLib.MainRuntime", "CardTCLib", "1.1.5")]
 [BepInDependency("Dop.plugin.CSTI.ModLoader")]
 public class MainRuntime : BaseUnityPlugin
 {
@@ -42,6 +42,8 @@ public class MainRuntime : BaseUnityPlugin
         LuaEnv["Events"] = Events;
         LuaEnv["CoroutineHelper"] = CoroutineHelper;
         LuaEnv["Game"] = Game;
+
+        LuaLib.LuaLib.OpenLib(LuaEnv);
     }
 
     // modloader 加套事件系统
