@@ -21,13 +21,14 @@ public class GameBridge
         if (uniqueIDScriptable == null)
         {
             var uniqueIdObjectBridge = new UniqueIdObjectBridge(null);
-            uniqueIDScriptable = ModLoader.ModLoader.AllGUIDDict.FirstOrDefault(pair =>
-            {
-                if (pair.Value.name == key) return true;
-                uniqueIdObjectBridge.UniqueIDScriptable = pair.Value;
-                return uniqueIdObjectBridge.Name == key || uniqueIdObjectBridge.NameLocal == key ||
-                       uniqueIdObjectBridge.NameChinese == key;
-            }).Value;
+            uniqueIDScriptable = ModLoader.ModLoader.AllGUIDDict.Values.Concat(GameLoad.Instance.DataBase.AllData)
+                .FirstOrDefault(uidScript =>
+                {
+                    if (uidScript.name == key) return true;
+                    uniqueIdObjectBridge.UniqueIDScriptable = uidScript;
+                    return uniqueIdObjectBridge.Name == key || uniqueIdObjectBridge.NameLocal == key ||
+                           uniqueIdObjectBridge.NameChinese == key;
+                });
         }
 
         if (uniqueIDScriptable == null) return null;
@@ -65,13 +66,26 @@ public class GameBridge
         icon ??= "icon_" + id;
         var cardData = (CardData)ModLoader.LoaderUtil.ScriptableUtil.CreateInstance(typeof(CardData));
         cardData.UniqueID = id;
-        cardData.name = name;
-        cardData.CardName = new LocalizedString { DefaultText = name, LocalizationKey = id + "_" + name };
+        cardData.name = id + "_" + name;
+        cardData.CardName = new LocalizedString { DefaultText = name, LocalizationKey = cardData.name + "_name" };
+        cardData.CardDescription = new LocalizedString { LocalizationKey = cardData.name + "_description" };
+        cardData.SpillsInventoryOnDestroy = true;
+        var traverse = Traverse.Create(cardData);
+        foreach (var field in traverse.Fields())
+        {
+            var fieldTraverse = traverse.Field(field);
+            if (fieldTraverse.GetValueType() == typeof(DurabilityStat))
+            {
+                fieldTraverse.SetValue(new DurabilityStat(false, 0));
+            }
+        }
+
         if (Enum.TryParse<CardTypes>(type, out var cardType))
         {
             cardData.CardType = cardType;
         }
 
+        GameLoad.Instance.DataBase.AllData.Add(cardData);
         UniqueIDScriptable.AllUniqueObjects[id] = cardData;
         ModLoader.ModLoader.AllGUIDDict[id] = cardData;
         ModLoader.ModLoader.AllGUIDTypeDict[typeof(CardData)][id] = cardData;

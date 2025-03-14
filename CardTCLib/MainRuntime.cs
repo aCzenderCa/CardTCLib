@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 using BepInEx;
 using CardTCLib.Const;
@@ -6,10 +8,11 @@ using CardTCLib.LuaBridge;
 using CardTCLib.Patch;
 using HarmonyLib;
 using NLua;
+using UnityEngine;
 
 namespace CardTCLib;
 
-[BepInPlugin("zender.CardTCLib.MainRuntime", "CardTCLib", "1.1.5")]
+[BepInPlugin("zender.CardTCLib.MainRuntime", "CardTCLib", "1.1.7")]
 [BepInDependency("Dop.plugin.CSTI.ModLoader")]
 public class MainRuntime : BaseUnityPlugin
 {
@@ -27,6 +30,8 @@ public class MainRuntime : BaseUnityPlugin
 
         HarmonyInstance.PatchAll(typeof(NpcActionPatch));
         HarmonyInstance.PatchAll(typeof(NpcCommonPatch));
+
+        HarmonyInstance.PatchAll(typeof(CardPatch_0));
 
         SetupLuaEnv();
         // 在这注册modloader的事件
@@ -52,7 +57,8 @@ public class MainRuntime : BaseUnityPlugin
         var setupScriptPath = Path.Combine(directory, TCSpecialModPaths.SetupLuaScripts);
         if (!Directory.Exists(setupScriptPath)) return;
 
-        foreach (var script in Directory.EnumerateFiles(setupScriptPath, "*.lua", SearchOption.AllDirectories))
+        foreach (var script in Directory.EnumerateFiles(setupScriptPath, "*.lua", SearchOption.AllDirectories)
+                     .OrderBy(Path.GetFileName))
         {
             LuaEnv.DoString(File.ReadAllText(script, Encoding.UTF8), script);
         }

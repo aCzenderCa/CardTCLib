@@ -11,10 +11,8 @@ using Object = UnityEngine.Object;
 
 namespace CardTCLib.LuaBridge;
 
-public class UniqueIdObjectBridge(UniqueIDScriptable? uniqueIDScriptable)
+public partial class UniqueIdObjectBridge(UniqueIDScriptable? uniqueIDScriptable)
 {
-    public static readonly Dictionary<CardData, (string mainTab, string subTab)> BpCardTabs = new();
-    public CardData? CardData => UniqueIDScriptable as CardData;
 
     public UniqueIDScriptable? UniqueIDScriptable = uniqueIDScriptable;
     public static readonly Dictionary<NPCAgent, CardData> GeneratedNpcCards = new();
@@ -28,44 +26,6 @@ public class UniqueIdObjectBridge(UniqueIDScriptable? uniqueIDScriptable)
         }
 
         return null;
-    }
-
-    public void SetBpTab(string mainTab, string subTab, bool needRemoveOld = true)
-    {
-        if (UniqueIDScriptable is not CardData { CardType: CardTypes.Blueprint } cardData) return;
-        if (BpCardTabs.TryGetValue(cardData, out var oldTab))
-        {
-            foreach (var cardTabGroup in Resources.FindObjectsOfTypeAll<CardTabGroup>())
-            {
-                if (needRemoveOld && (cardTabGroup.name == oldTab.mainTab ||
-                                      cardTabGroup.TabName.DefaultText == oldTab.mainTab))
-                {
-                    cardTabGroup.IncludedCards.Remove(cardData);
-                    foreach (var subGroup in cardTabGroup.SubGroups)
-                    {
-                        if (subGroup.name == oldTab.subTab || subGroup.TabName.DefaultText == oldTab.subTab)
-                        {
-                            subGroup.IncludedCards.Remove(cardData);
-                            break;
-                        }
-                    }
-                }
-
-                if (cardTabGroup.name == mainTab || cardTabGroup.TabName.DefaultText == mainTab)
-                {
-                    cardTabGroup.IncludedCards.Add(cardData);
-                    foreach (var subGroup in cardTabGroup.SubGroups)
-                    {
-                        if (subGroup.name == subTab || subGroup.TabName.DefaultText == subTab)
-                        {
-                            subGroup.IncludedCards.Add(cardData);
-                        }
-                    }
-                }
-            }
-        }
-
-        BpCardTabs[cardData] = (mainTab, subTab);
     }
 
     public float GetTValue(string key)
@@ -82,56 +42,6 @@ public class UniqueIdObjectBridge(UniqueIDScriptable? uniqueIDScriptable)
         {
             timeObjective.Value = (int)(value * 1000f);
         }
-    }
-
-    public void SetBpStage(int idx, LuaTable table)
-    {
-        if (UniqueIDScriptable is not CardData { CardType: CardTypes.Blueprint } cardData) return;
-        if (cardData.BlueprintStages == null || cardData.BlueprintStages?.Length <= idx)
-        {
-            var rawStages = cardData.BlueprintStages;
-            cardData.BlueprintStages = new BlueprintStage[idx + 1];
-            if (rawStages != null) Array.Copy(rawStages, cardData.BlueprintStages, rawStages.Length);
-            for (var i = 0; i < cardData.BlueprintStages.Length; i++)
-            {
-                cardData.BlueprintStages[i] ??= new BlueprintStage();
-            }
-        }
-
-        var stage = new BlueprintStage();
-        var blueprintElements = new List<BlueprintElement>();
-        foreach (var (_, val) in table.Ipairs<LuaTable>())
-        {
-            var blueprintElement = new BlueprintElement
-            {
-                RequiredCard = val.GetObj<UniqueIdObjectBridge>("Card")?.CardData,
-                RequiredQuantity = (int)val.GetNum("Count"),
-                DontSpend = !val.GetBool("Spend"),
-                Usage = new OptionalRangeValue(true, (float)val.GetNum("UsageCost"), 0)
-            };
-            blueprintElements.Add(blueprintElement);
-        }
-
-        stage.RequiredElements = blueprintElements.ToArray();
-        cardData.BlueprintStages![idx] = stage;
-    }
-
-    public void SetBpResults(LuaTable table)
-    {
-        if (UniqueIDScriptable is not CardData { CardType: CardTypes.Blueprint } cardData) return;
-        var cardDrops = new List<CardDrop>();
-        foreach (var (_, val) in table.Ipairs<LuaTable>())
-        {
-            var count = (int)val.GetNum("Count");
-            var cardDrop = new CardDrop
-            {
-                DroppedCard = val.GetObj<UniqueIdObjectBridge>("Card")?.CardData,
-                Quantity = new Vector2Int(count, count)
-            };
-            cardDrops.Add(cardDrop);
-        }
-
-        cardData.BlueprintResult = cardDrops.ToArray();
     }
 
     public void AddSlot(UniqueIdObjectBridge? uniqueIdObjectBridge = null)

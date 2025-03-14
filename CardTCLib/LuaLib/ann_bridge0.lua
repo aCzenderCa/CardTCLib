@@ -3,48 +3,20 @@
 --- DateTime: 2025/3/7 23:19
 ---
 
----@alias ObCardActionDelegate fun(rec:InGameCardBridge,give:(InGameCardBridge|nil)
----@alias BatchEnumeratorsActionDelegate fun(cache:List<IEnumerator>)
-
----@generic T
----@class List<T>
----@field Add fun(self:List<T>,val:T)
-
----@class IEnumerator
-
----@class Events
----@field RegModLoadComplete fun(self:Events,action:fun():void)
----@field RegModLoadCompletePost fun(self:Events,action:fun():void)
----@field RegOnAction fun(self:Events,key:string,action:ObCardActionDelegate))
----@field RegOnEndAction fun(self:Events,key:string,action:ObCardActionDelegate))
-Events = {}
-
----@class CoroutineHelper
----@field BatchEnumerators fun(self:CoroutineHelper,action:BatchEnumeratorsActionDelegate)
-CoroutineHelper = {}
-
----@alias FadeToBlackTypes ("None"|"Partial"|"Full")
----@alias CardActionType ("CardAction"|"CardOnCardAction"|"DismantleCardAction"|"FromStatChangeAction")
----@alias CardTypes ("Item"|"Base"|"Location"|"Event"|"Environment"|"Weather"|"Hand"|"Blueprint"|"Explorable"|"Liquid"|"EnvImprovement"|"EnvDamage"|"BlueprintInLocation"|"InvisibleCard")
----@class GameBridge
----@field CreateAction fun(self:GameBridge,id:string,name:string,type:CardActionType):CardActionBridge
----@field CreateCard fun(self:GameBridge,id:string,name:string,type:CardTypes,icon:string):UniqueIdObjectBridge
----@field Log fun(self:GameBridge,message:string)
----@field PassTime fun(self:GameBridge,miniTick:number,fromCard:InGameCardBridge,blockable:boolean,fadeType:FadeToBlackTypes,fadeText:string)
----@field PassTimeEnum fun(self:GameBridge,miniTick:number,fromCard:InGameCardBridge,blockable:boolean,fadeType:FadeToBlackTypes,fadeText:string):IEnumerator
----@field GetItem fun(self:GameBridge,key:string):(UniqueIdObjectBridge|nil)
----@field MiniTicksPerTick number
-Game = {}
-
----@class CardActionBridge
+---@alias bpMainTab "生存"|"工具"|"狩猎"|"纺织"|"冶金 & 制陶"|"农业"|"魔法"|string
+---@alias bpSubTab "火"|"物资"|"医疗"|"娱乐"|"工具"|"高级工具"|"材料"|"家具"|"建造房屋"|"钓鱼"|"陷阱"|"近战"|"简易的"|"布"|"皮革"|"毛皮"|"装备"|"工具"|"器具"|"农业"|"动物养殖"|"圣地"|"灵具"|string
 
 ---@class UniqueIdObjectBridge
+---@field CardData CardData
+---
 ---@field GetTValue fun(self:UniqueIdObjectBridge,key:string):number
 ---@field SetTValue fun(self:UniqueIdObjectBridge,key:string,val:number)
 ---
 ---@field SetBpResults fun(self:UniqueIdObjectBridge,data:CountedCard[])
 ---@field SetBpStage fun(self:UniqueIdObjectBridge,idx:number,data:BpStageEle[])
----@field SetBpTab fun(self:UniqueIdObjectBridge,mainTab:string,subTab:string)
+---@field SetBpTab fun(self:UniqueIdObjectBridge,mainTab:bpMainTab,subTab:bpSubTab)
+---@field InitEmptyBpRequire fun(self:UniqueIdObjectBridge)
+---@field SetBuildStatCost fun(self:UniqueIdObjectBridge,mods:StatModifier[])
 ---
 ---@field GenNpcCardModel fun(self:UniqueIdObjectBridge):UniqueIdObjectBridge
 ---@field AddAction fun(self:UniqueIdObjectBridge,action:CardActionBridge)
@@ -60,16 +32,18 @@ Game = {}
 ---@field SetIcon fun(self:UniqueIdObjectBridge,icon:string)
 ---@field GetItem fun(self:UniqueIdObjectBridge,key:string):number
 ---@field SetItem fun(self:UniqueIdObjectBridge,key:string):number
+---@field Desc string
 ---@field Weight number
 ---@field MaxWeightCapacity number
 ---@field AddSlot fun(self:UniqueIdObjectBridge,add:UniqueIdObjectBridge|nil)
 ---@field RemoveSlot fun(self:UniqueIdObjectBridge,idx:number)
 
 ---@class InGameCardBridge
+---@field CardModel UniqueIdObjectBridge
 ---@field SetExtraValue fun(self:InGameCardBridge,key:string,val:string|number)
 ---@field GetExtraValue fun(self:InGameCardBridge,key:string):string|number|nil
----@field AddCard fun(self:InGameCardBridge,obj:UniqueIdObjectBridge)
----@field AddCardEnum fun(self:InGameCardBridge,obj:UniqueIdObjectBridge):IEnumerator
+---@field AddCard fun(self:InGameCardBridge,obj:UniqueIdObjectBridge,arg:AddCardExtraArg|nil)
+---@field AddCardEnum fun(self:InGameCardBridge,obj:UniqueIdObjectBridge,arg:AddCardExtraArg|nil):IEnumerator
 ---@field Delete fun(self:InGameCardBridge)
 ---@field DeleteEnum fun(self:InGameCardBridge):IEnumerator
 ---@field ResetInventory fun(self:InGameCardBridge)

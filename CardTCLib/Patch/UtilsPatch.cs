@@ -157,12 +157,12 @@ public static class UtilsPatch
         MainRuntime.Events.OnModLoadCompletePost();
     }
 
-    [HarmonyPatch(typeof(GameManager), nameof(GameManager.Awake)), HarmonyPostfix]
-    public static void OnEnterGame()
+    [HarmonyPatch(typeof(GraphicsManager), nameof(GraphicsManager.Init)), HarmonyPrefix]
+    public static void GraphicsManager_Init_Pre()
     {
         foreach (var (cardData, (mainTab, subTab)) in UniqueIdObjectBridge.BpCardTabs)
         {
-            new UniqueIdObjectBridge(cardData).SetBpTab(mainTab, subTab, needRemoveOld: false);
+            new UniqueIdObjectBridge(cardData).SetBpTab(mainTab, subTab, needRemoveOld: false, setToTable: false);
         }
     }
 }

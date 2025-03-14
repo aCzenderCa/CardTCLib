@@ -44,7 +44,7 @@ public readonly struct CommonValue
     {
         ValType.String => Str,
         ValType.Long => L,
-        ValType.Double => D,
+        ValType.Double => D % 1.0 == 0.0 ? (long)D : D,
         _ => null,
     };
 }

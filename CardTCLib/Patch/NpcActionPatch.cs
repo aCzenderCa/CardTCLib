@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using CardTCLib.LuaBridge;
 using CardTCLib.Util;
 using HarmonyLib;
@@ -8,6 +9,8 @@ namespace CardTCLib.Patch;
 
 public static class NpcActionPatch
 {
+    public static HashSet<string> DisablePulsedCards = [];
+
     [HarmonyPatch(typeof(NPCAction), nameof(NPCAction.ToAction)), HarmonyPostfix]
     public static void NPCAction_ToAction_Post(NPCAction __instance, CardAction __result)
     {
@@ -25,21 +28,14 @@ public static class NpcActionPatch
         }
     }
 
-    [HarmonyPatch(typeof(GameManager), nameof(GameManager.ActionRoutine)), HarmonyPostfix]
-    public static void GameManager_ActionRoutine_Post(ref IEnumerator __result, CardAction _Action,
-        InGameCardBase _ReceivingCard, InGameCardBase? _GivenCard)
+    [HarmonyPatch(typeof(InGameCardBase), nameof(InGameCardBase.Pulse)), HarmonyPrefix]
+    public static bool InGameCardBase_Pulse_Pre(InGameCardBase __instance)
     {
-        
-        if (string.IsNullOrEmpty(_Action.ActionName.ParentObjectID)) return;
-        if (!MainRuntime.Events.HasEffect(_Action.ActionName.ParentObjectID)) return;
-        __result = __result.OnEnumerator(() =>
+        if (DisablePulsedCards.Contains(__instance.CardModel.UniqueID))
         {
-            MainRuntime.Events.NotifyCardAction(_Action.ActionName.ParentObjectID,
-                InGameCardBridge.Get(_ReceivingCard)!, _GivenCard != null ? InGameCardBridge.Get(_GivenCard) : null);
-        }, () =>
-        {
-            MainRuntime.Events.NotifyCardActionEnd(_Action.ActionName.ParentObjectID,
-                InGameCardBridge.Get(_ReceivingCard)!, _GivenCard != null ? InGameCardBridge.Get(_GivenCard) : null);
-        });
+            return false;
+        }
+
+        return true;
     }
 }

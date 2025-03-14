@@ -4,6 +4,23 @@
 --- DateTime: 2025/3/11 23:34
 ---
 
+CS = import('Assembly-CSharp', 'global::')
+CS.UE = import('UnityEngine')
+
+StatModifier = {}
+
+function StatModifier.new(idOrName, valMod, rateMod)
+    valMod = valMod or 0
+    rateMod = rateMod or 0
+    local stat = Game:GetItem(idOrName)
+    ---@class StatModifier
+    local mod = CS.StatModifier()
+    mod.Stat = stat.UniqueIDScriptable
+    mod.ValueModifier = CS.UE.Vector2(valMod, valMod)
+    mod.RateModifier = CS.UE.Vector2(rateMod, rateMod)
+    return mod
+end
+
 ---@class CountedCard
 ---@field Card UniqueIdObjectBridge
 ---@field Count number
@@ -12,7 +29,7 @@ CountedCard = {}
 ---@param idOrName string
 ---@param count number
 function CountedCard.new(idOrName, count)
-    local ins = { Card = Game:GetItem(idOrName), Count = count }
+    local ins = { Card = Game:GetItem(idOrName), Count = count or 1 }
     return ins
 end
 
@@ -21,11 +38,27 @@ end
 ---@field UsageCost number
 BpStageEle = {}
 
-function BpStageEle.new(idOrName, cost, spend)
+---@param spendUsage boolean|nil
+function BpStageEle.new(idOrName, cost, spendUsage)
     ---@type BpStageEle
-    local ins = CountedCard.new(idOrName, (spend and 1) or cost)
-    ins.Spend = spend
+    local ins = CountedCard.new(idOrName, (spendUsage and 1) or cost)
+    ins.Spend = not spendUsage
     ins.UsageCost = cost
     return ins
 end
 
+CardUtil = {}
+
+---@param card UniqueIdObjectBridge
+---@param multi number|nil
+---@param extraMods StatModifier[]|nil
+function CardUtil.SetCommonBpStatMods(card,multi,extraMods)
+    local modList = extraMods or {}
+    multi = multi or 1
+    local fac = multi * card.CardData.BuildingDaytimeCost
+    table.insert(modList,StatModifier.new("耐力",-1.25 * fac))
+    table.insert(modList,StatModifier.new("幸福度",0.3 * fac))
+    table.insert(modList,StatModifier.new("专注度",0.2 * fac))
+    
+    card:SetBuildStatCost(modList)
+end

@@ -9,12 +9,14 @@ using BepInEx;
 using CardTCLib.Util;
 using gfoidl.Base64;
 using ModLoader;
+using NLua;
 using UnityEngine;
 
 namespace CardTCLib.LuaBridge;
 
 public class InGameCardBridge
 {
+    public UniqueIdObjectBridge CardModel => new(Card.CardModel);
     public readonly Dictionary<string, CommonValue> ExtraValues = new();
     public static readonly Regex ExtraValueRegex = new(@"\[_TCLib__Ex_\](?<b64>.*)", RegexOptions.Compiled);
 
@@ -231,16 +233,23 @@ public class InGameCardBridge
         return changeEnumerator;
     }
 
-    public IEnumerator AddCardEnum(CardData cardData)
+    public IEnumerator AddCardEnum(CardData cardData, LuaTable? table = null)
     {
+        var trans = table.GetBool("Trans");
+        TransferedDurabilities? transDur = null;
+        if (trans)
+        {
+            transDur = new TransferedDurabilities(Card, new DurabilitiesMask { MaskValue = -1 });
+        }
+
         var addCard = GameManager.Instance.AddCard(cardData, Card, true,
-            GameManager.SpecialDrop.InsideCardInventory, null, null,
+            GameManager.SpecialDrop.InsideCardInventory, transDur, null,
             null, null, true, SpawningLiquid.DefaultLiquid,
             CurrentTickForAddCard, null, _MoveView: false);
         return addCard;
     }
 
-    public void AddCard(UniqueIdObjectBridge obj)
+    public void AddCard(UniqueIdObjectBridge obj, LuaTable? table = null)
     {
         if (obj.UniqueIDScriptable is CardData cardData)
         {
