@@ -4,6 +4,7 @@ using System.Linq;
 using BepInEx;
 using CardTCLib.Util;
 using HarmonyLib;
+using NLua;
 using UnityEngine;
 
 namespace CardTCLib.LuaBridge;
@@ -124,6 +125,42 @@ public class GameBridge
     {
         var spendDaytimePoints = PassTimeEnum(miniTick, fromCard, blockable, fadeType, fadeText);
         CoUtils.StartCoWithBlockAction(spendDaytimePoints);
+    }
+
+    public void CloseCurrentInspectionPopup()
+    {
+        var inspectionPopup = GraphicsManager.Instance.CurrentInspectionPopup;
+        if (inspectionPopup)
+        {
+            inspectionPopup.Hide(false);
+        }
+    }
+
+    public void RefreshCurrentInspectionPopup()
+    {
+        var inspectionPopup = GraphicsManager.Instance.CurrentInspectionPopup;
+        if (inspectionPopup)
+        {
+            inspectionPopup.SetupCurrentCardActions();
+            var currentCard = inspectionPopup.CurrentCard;
+            inspectionPopup.PopupTitle.text = currentCard.CardName();
+            inspectionPopup.DescriptionText.text = currentCard.CardDescription();
+        }
+    }
+
+    public void FindCards(UniqueIdObjectBridge uniqueIdObjectBridge, LuaTable save, bool includeBackground = false)
+    {
+        var cardData = uniqueIdObjectBridge.CardData;
+        if (cardData == null) return;
+        var idx = 1;
+        foreach (var inGameCardBase in GameManager.Instance.AllCards)
+        {
+            if ((!inGameCardBase.InBackground || includeBackground) && inGameCardBase.CardModel == cardData)
+            {
+                save[idx] = inGameCardBase;
+                idx++;
+            }
+        }
     }
 
     public void Log(string message)

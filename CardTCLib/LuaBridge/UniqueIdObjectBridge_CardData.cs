@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CardTCLib.Util;
+using HarmonyLib;
 using NLua;
 using UnityEngine;
 
@@ -24,6 +25,96 @@ public partial class UniqueIdObjectBridge
             }
         }
     }
+
+    #region Action
+
+    public CardActionBridge AddAction(string id, string name, string type)
+    {
+        var cardActionBridge = MainRuntime.Game.CreateAction(id, name, type);
+        AddAction(cardActionBridge);
+        return cardActionBridge;
+    }
+
+    public void AddAction(CardActionBridge action)
+    {
+        if (UniqueIDScriptable is CardData cardData)
+        {
+            switch (action.Action)
+            {
+                case DismantleCardAction dismantleCardAction:
+                    cardData.DismantleActions ??= [];
+                    cardData.DismantleActions.Add(dismantleCardAction);
+                    break;
+                case FromStatChangeAction fromStatChangeAction:
+                    cardData.OnStatsChangeActions ??= [];
+                    cardData.OnStatsChangeActions = cardData.OnStatsChangeActions.AddToArray(fromStatChangeAction);
+                    break;
+                case CardOnCardAction cardOnCardAction:
+                    cardData.CardInteractions ??= [];
+                    cardData.CardInteractions = cardData.CardInteractions.AddToArray(cardOnCardAction);
+                    break;
+            }
+        }
+    }
+
+    public void RemoveAction(string type, object id)
+    {
+        var cardData = UniqueIDScriptable as CardData;
+        switch (type)
+        {
+            case nameof(CardAction):
+                break;
+            case nameof(CardOnCardAction):
+                if (cardData != null)
+                {
+                    if (id is string sid)
+                    {
+                        cardData.CardInteractions = cardData.CardInteractions
+                            .Where(action => action.ActionName.ParentObjectID != sid).ToArray();
+                    }
+                    else if (id is long iid)
+                    {
+                        cardData.CardInteractions = cardData.CardInteractions.Where((_, i) => i == iid).ToArray();
+                    }
+                }
+
+                break;
+            case nameof(DismantleCardAction):
+                if (cardData != null)
+                {
+                    if (id is string sid)
+                    {
+                        cardData.DismantleActions = cardData.DismantleActions
+                            .Where(action => action.ActionName.ParentObjectID != sid).ToList();
+                    }
+                    else if (id is long iid)
+                    {
+                        cardData.DismantleActions = cardData.DismantleActions.Where((_, i) => i == iid).ToList();
+                    }
+                }
+
+                break;
+            case nameof(FromStatChangeAction):
+                if (cardData != null)
+                {
+                    if (id is string sid)
+                    {
+                        cardData.OnStatsChangeActions = cardData.OnStatsChangeActions
+                            .Where(action => action.ActionName.ParentObjectID != sid).ToArray();
+                    }
+                    else if (id is long iid)
+                    {
+                        cardData.OnStatsChangeActions =
+                            cardData.OnStatsChangeActions.Where((_, i) => i == iid).ToArray();
+                    }
+                }
+
+                break;
+        }
+    }
+
+    #endregion
+
 
     #region Bp
 

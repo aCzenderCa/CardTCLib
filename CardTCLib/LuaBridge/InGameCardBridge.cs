@@ -22,13 +22,15 @@ public class InGameCardBridge
 
     public void SaveExtraValues()
     {
+        var key = Card.DroppedCollections.FirstOrDefault(pair => ExtraValueRegex.IsMatch(pair.Key)).Key;
+        if (!key.IsNullOrWhiteSpace()) Card.DroppedCollections.Remove(key);
+        if (ExtraValues.Count == 0) return;
+
         var memoryStream = new MemoryStream();
         var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
         writer.Write(ExtraValues);
         writer.Flush();
         var base64Str = Base64.Default.Encode(memoryStream.ToArray());
-        var key = Card.DroppedCollections.FirstOrDefault(pair => ExtraValueRegex.IsMatch(pair.Key)).Key;
-        if (!key.IsNullOrWhiteSpace()) Card.DroppedCollections.Remove(key);
 
         Card.DroppedCollections[$"[_TCLib__Ex_]{base64Str}"] = Vector2Int.zero;
     }
@@ -49,9 +51,17 @@ public class InGameCardBridge
         }
     }
 
-    public void SetExtraValue(string key, object value)
+    public void SetExtraValue(string key, object? value)
     {
-        ExtraValues[key] = new CommonValue(value);
+        if (value != null)
+        {
+            ExtraValues[key] = new CommonValue(value);
+        }
+        else
+        {
+            ExtraValues.Remove(key);
+        }
+
         SaveExtraValues();
     }
 

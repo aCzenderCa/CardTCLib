@@ -18,6 +18,7 @@
 ---@field RegOnAction fun(self:Events,key:string,action:OnCardActionDelegate))
 ---@field RegOnEndAction fun(self:Events,key:string,action:OnCardActionDelegate))
 ---@field RegCardNameOverride fun(self:Events,uobj:UniqueIdObjectBridge,func:fun(card:InGameCardBridge):string))
+---@field RegCardDescOverride fun(self:Events,uobj:UniqueIdObjectBridge,func:fun(card:InGameCardBridge):string))
 ---@field RegActionNameOverride fun(self:Events,uobj:UniqueIdObjectBridge,func:fun(actionName:string,card:InGameCardBridge):string))
 Events = {}
 
@@ -35,6 +36,9 @@ CoroutineHelper = {}
 ---@field PassTime fun(self:GameBridge,miniTick:number,fromCard:InGameCardBridge,blockable:boolean,fadeType:FadeToBlackTypes,fadeText:string)
 ---@field PassTimeEnum fun(self:GameBridge,miniTick:number,fromCard:InGameCardBridge,blockable:boolean,fadeType:FadeToBlackTypes,fadeText:string):IEnumerator
 ---@field GetItem fun(self:GameBridge,key:string):(UniqueIdObjectBridge|nil)
+---@field CloseCurrentInspectionPopup fun(self:GameBridge)
+---@field RefreshCurrentInspectionPopup fun(self:GameBridge)
+---@field FindCards fun(self:GameBridge,cardData:UniqueIdObjectBridge,cache:InGameCardBridge[],includeBackground:boolean|nil)
 ---@field MiniTicksPerTick number
 Game = {}
 

@@ -33,7 +33,17 @@ public static class CardPatch_0
         if (__instance && __instance.CardModel &&
             MainRuntime.Events.CardNameOverrides.TryGetValue(__instance.CardModel.UniqueID, out var func))
         {
-            __result = func(InGameCardBridge.Get(__instance)!);
+            __result = func(InGameCardBridge.Get(__instance)!) ?? __result;
+        }
+    }
+
+    [HarmonyPatch(typeof(InGameCardBase), nameof(InGameCardBase.CardDescription)), HarmonyPostfix]
+    public static void InGameCardBase_CardDescription(InGameCardBase __instance, ref string __result)
+    {
+        if (__instance && __instance.CardModel &&
+            MainRuntime.Events.CardDescOverrides.TryGetValue(__instance.CardModel.UniqueID, out var func))
+        {
+            __result = func(InGameCardBridge.Get(__instance)!) ?? __result;
         }
     }
 

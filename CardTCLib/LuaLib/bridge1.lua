@@ -52,13 +52,28 @@ CardUtil = {}
 ---@param card UniqueIdObjectBridge
 ---@param multi number|nil
 ---@param extraMods StatModifier[]|nil
-function CardUtil.SetCommonBpStatMods(card,multi,extraMods)
+function CardUtil.SetCommonBpStatMods(card, multi, extraMods)
     local modList = extraMods or {}
     multi = multi or 1
     local fac = multi * card.CardData.BuildingDaytimeCost
-    table.insert(modList,StatModifier.new("耐力",-1.25 * fac))
-    table.insert(modList,StatModifier.new("幸福度",0.3 * fac))
-    table.insert(modList,StatModifier.new("专注度",0.2 * fac))
-    
+    table.insert(modList, StatModifier.new("耐力", -1.25 * fac))
+    table.insert(modList, StatModifier.new("幸福度", 0.3 * fac))
+    table.insert(modList, StatModifier.new("专注度", 0.2 * fac))
+
     card:SetBuildStatCost(modList)
+end
+
+---@param card UniqueIdObjectBridge|InGameCardBridge
+function CardUtil.FindFirstCard(card, includeBackground)
+    return CardUtil.FindCards(card, includeBackground)
+end
+
+---@param card UniqueIdObjectBridge|InGameCardBridge
+function CardUtil.FindCards(card, includeBackground)
+    includeBackground = includeBackground or false
+    ---@type UniqueIdObjectBridge
+    local cardData = card.CardModel or card
+    local cache = {}
+    Game:FindCards(cardData, cache, includeBackground)
+    return cache
 end

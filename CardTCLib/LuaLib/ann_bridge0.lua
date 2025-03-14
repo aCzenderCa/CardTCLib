@@ -19,6 +19,7 @@
 ---@field SetBuildStatCost fun(self:UniqueIdObjectBridge,mods:StatModifier[])
 ---
 ---@field GenNpcCardModel fun(self:UniqueIdObjectBridge):UniqueIdObjectBridge
+---@field AddAction fun(self:UniqueIdObjectBridge,id:string,name:string,type:CardActionType)
 ---@field AddAction fun(self:UniqueIdObjectBridge,action:CardActionBridge)
 ---@field RemoveAction fun(self:UniqueIdObjectBridge,type:CardActionType,id:string)
 ---@field GetStatInfo fun(self:UniqueIdObjectBridge):number,number,number,number

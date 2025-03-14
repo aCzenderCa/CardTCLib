@@ -12,6 +12,7 @@ public class Events
     private readonly Dictionary<string, OnCardActionDelegate> _onActions = new();
     private readonly Dictionary<string, OnCardActionDelegate> _onEndActions = new();
     public readonly Dictionary<string, Func<InGameCardBridge, string>> CardNameOverrides = new();
+    public readonly Dictionary<string, Func<InGameCardBridge, string>> CardDescOverrides = new();
     public readonly Dictionary<string, Func<string, InGameCardBridge, string>> ActionNameOverrides = new();
 
     public void RegModLoadComplete(Action action)
@@ -53,6 +54,13 @@ public class Events
         if (card.UniqueIDScriptable == null) return;
         var id = card.UniqueIDScriptable.UniqueID;
         CardNameOverrides[id] = func;
+    }
+
+    public void RegCardDescOverride(UniqueIdObjectBridge card, Func<InGameCardBridge, string> func)
+    {
+        if (card.UniqueIDScriptable == null) return;
+        var id = card.UniqueIDScriptable.UniqueID;
+        CardDescOverrides[id] = func;
     }
 
     public void RegActionNameOverride(UniqueIdObjectBridge card, Func<string, InGameCardBridge, string> func)
