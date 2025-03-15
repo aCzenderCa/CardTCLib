@@ -14,6 +14,9 @@ public class Events
     public readonly Dictionary<string, Func<InGameCardBridge, string>> CardNameOverrides = new();
     public readonly Dictionary<string, Func<InGameCardBridge, string>> CardDescOverrides = new();
     public readonly Dictionary<string, Func<string, InGameCardBridge, string>> ActionNameOverrides = new();
+    public readonly Dictionary<string, Func<string, InGameCardBridge, string>> ActionTipOverrides = new();
+
+    public readonly Dictionary<string, Func<InGameCardBridge, InGameCardBridge, int?>> PossibleActionOverrides = new();
 
     public void RegModLoadComplete(Action action)
     {
@@ -68,6 +71,20 @@ public class Events
         if (card.UniqueIDScriptable == null) return;
         var id = card.UniqueIDScriptable.UniqueID;
         ActionNameOverrides[id] = func;
+    }
+
+    public void RegActionTipOverride(UniqueIdObjectBridge card, Func<string, InGameCardBridge, string> func)
+    {
+        if (card.UniqueIDScriptable == null) return;
+        var id = card.UniqueIDScriptable.UniqueID;
+        ActionTipOverrides[id] = func;
+    }
+
+    public void RegPossibleActionOverride(UniqueIdObjectBridge card, Func<InGameCardBridge, InGameCardBridge, int?> func)
+    {
+        if (card.UniqueIDScriptable == null) return;
+        var id = card.UniqueIDScriptable.UniqueID;
+        PossibleActionOverrides[id] = func;
     }
 
     public bool HasEffect(string id)

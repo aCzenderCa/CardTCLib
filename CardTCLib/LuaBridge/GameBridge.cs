@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using BepInEx;
 using CardTCLib.Util;
 using HarmonyLib;
@@ -36,6 +38,8 @@ public class GameBridge
 
         return new UniqueIdObjectBridge(uniqueIDScriptable);
     }
+
+    #region Create
 
     public CardActionBridge CreateAction(string id, string name, string type)
     {
@@ -100,23 +104,24 @@ public class GameBridge
         return uniqueIdObjectBridge;
     }
 
+    #endregion
+
+    #region GameLogic
+
     public IEnumerator PassTimeEnum(int miniTick, InGameCardBridge? fromCard = null, bool blockable = true,
         string fadeType = nameof(FadeToBlackTypes.Partial), string fadeText = "")
     {
+        if (miniTick <= 0) yield break;
         GameManager.Instance.CurrentMiniTicks += miniTick;
         var passedTp = GameManager.Instance.CurrentMiniTicks / MiniTicksPerTick;
         GameManager.Instance.CurrentMiniTicks %= MiniTicksPerTick;
+        if (passedTp <= 0) yield break;
         if (Enum.TryParse<FadeToBlackTypes>(fadeType, out var fade))
         {
             var spendDaytimePoints = GameManager.Instance.SpendDaytimePoints(passedTp, blockable, true, false,
                 fromCard?.Card, fade, fadeText, blockable, false, null, null, null);
 
-            var queuedCardAction = GameManager.Instance.QueuedCardActions[0];
-            GameManager.Instance.QueuedCardActions.RemoveAt(0);
-
             yield return GameManager.Instance.StartCoroutine(spendDaytimePoints);
-
-            GameManager.Instance.QueuedCardActions.Insert(0, queuedCardAction);
         }
     }
 
@@ -126,6 +131,8 @@ public class GameBridge
         var spendDaytimePoints = PassTimeEnum(miniTick, fromCard, blockable, fadeType, fadeText);
         CoUtils.StartCoWithBlockAction(spendDaytimePoints);
     }
+
+    #endregion
 
     public void CloseCurrentInspectionPopup()
     {
@@ -157,11 +164,61 @@ public class GameBridge
         {
             if ((!inGameCardBase.InBackground || includeBackground) && inGameCardBase.CardModel == cardData)
             {
-                save[idx] = inGameCardBase;
+                save[idx] = InGameCardBridge.Get(inGameCardBase);
                 idx++;
             }
         }
     }
+
+    #region GlobalValue
+
+    public static readonly Regex GlobalValuesDatRx = new Regex(@"^\[TCLib.GData\](?<gdata>.+)$");
+    public readonly Dictionary<string, CommonValue> GlobalVariables = [];
+    public void LoadGlobalValues()
+    {
+        var saveData = GameManager.Instance.CurrentSaveData;
+        var gdata = "";
+        foreach (var quest in saveData.PinnedQuests)
+        {
+            var match = GlobalValuesDatRx.Match(quest);
+            if (match.Success)
+            {
+                gdata = match.Groups["gdata"].Value;
+                break;
+            }
+        }
+
+        if (gdata.Length > 0)
+        {
+            GlobalVariables.Clear();
+            RWUtils.DecodeB64CommonValueTable(gdata, GlobalVariables);
+        }
+    }
+
+    public string SaveGlobalValues(GameSaveData? saveData = null)
+    {
+        var b64String = GlobalVariables.EncodeB64CommonValueTable();
+        var saveString = $"[TCLib.GData]{b64String}";
+        saveData?.PinnedQuests.Add(saveString);
+        return saveString;
+    }
+
+    public object? GetGlobalValue(string key)
+    {
+        if (GlobalVariables.TryGetValue(key, out var commonValue))
+        {
+            return commonValue.Value;
+        }
+
+        return null;
+    }
+
+    public void SetGlobalValue(string key, object value)
+    {
+        GlobalVariables[key] = new CommonValue(value);
+    }
+
+    #endregion
 
     public void Log(string message)
     {

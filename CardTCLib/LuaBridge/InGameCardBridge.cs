@@ -18,7 +18,7 @@ public class InGameCardBridge
 {
     public UniqueIdObjectBridge CardModel => new(Card.CardModel);
     public readonly Dictionary<string, CommonValue> ExtraValues = new();
-    public static readonly Regex ExtraValueRegex = new(@"\[_TCLib__Ex_\](?<b64>.*)", RegexOptions.Compiled);
+    public static readonly Regex ExtraValueRegex = new(@"^\[_TCLib__Ex_\](?<b64>.*)$", RegexOptions.Compiled);
 
     public void SaveExtraValues()
     {
@@ -26,11 +26,7 @@ public class InGameCardBridge
         if (!key.IsNullOrWhiteSpace()) Card.DroppedCollections.Remove(key);
         if (ExtraValues.Count == 0) return;
 
-        var memoryStream = new MemoryStream();
-        var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
-        writer.Write(ExtraValues);
-        writer.Flush();
-        var base64Str = Base64.Default.Encode(memoryStream.ToArray());
+        var base64Str = ExtraValues.EncodeB64CommonValueTable();
 
         Card.DroppedCollections[$"[_TCLib__Ex_]{base64Str}"] = Vector2Int.zero;
     }
@@ -41,13 +37,7 @@ public class InGameCardBridge
         if (!extraValueData.IsNullOrWhiteSpace())
         {
             var value = ExtraValueRegex.Match(extraValueData).Groups["b64"].Value;
-            var decode = Base64.Default.Decode(value.ToCharArray());
-            var reader = new BinaryReader(new MemoryStream(decode));
-            var commonValueTable = reader.ReadCommonValueTable();
-            foreach (var (key, val) in commonValueTable)
-            {
-                ExtraValues[key] = val;
-            }
+            RWUtils.DecodeB64CommonValueTable(value, ExtraValues);
         }
     }
 
@@ -346,7 +336,6 @@ public class InGameCardBridge
 
     public bool HasTag(string tag)
     {
-        return Card.CardModel && Card.CardModel.CardTags.Any(cardTag =>
-            cardTag.name == tag || cardTag.InGameName == tag || cardTag.InGameName.DefaultText == tag);
+        return CardModel.HasTag(tag);
     }
 }

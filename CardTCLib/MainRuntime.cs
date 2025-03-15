@@ -32,6 +32,7 @@ public class MainRuntime : BaseUnityPlugin
         HarmonyInstance.PatchAll(typeof(NpcCommonPatch));
 
         HarmonyInstance.PatchAll(typeof(CardPatch_0));
+        HarmonyInstance.PatchAll(typeof(GamePatch_0));
 
         SetupLuaEnv();
         // 在这注册modloader的事件
@@ -60,7 +61,7 @@ public class MainRuntime : BaseUnityPlugin
         foreach (var script in Directory.EnumerateFiles(setupScriptPath, "*.lua", SearchOption.AllDirectories)
                      .OrderBy(Path.GetFileName))
         {
-            LuaEnv.DoString(File.ReadAllText(script, Encoding.UTF8), script);
+            LuaEnv.DoString(File.ReadAllText(script, Encoding.UTF8), Path.GetFileName(script));
         }
     }
 }

@@ -63,7 +63,7 @@ public partial class UniqueIdObjectBridge(UniqueIDScriptable? uniqueIDScriptable
         cardData.InventorySlots ??= [];
         if (idx >= 0 && idx < cardData.InventorySlots.Length)
         {
-            cardData.InventorySlots = cardData.InventorySlots.Where((_, i) => i == idx).ToArray();
+            cardData.InventorySlots = cardData.InventorySlots.RemoveAtOnArr(idx);
         }
     }
 

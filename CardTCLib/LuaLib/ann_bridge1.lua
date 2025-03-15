@@ -20,10 +20,12 @@
 ---@field RegCardNameOverride fun(self:Events,uobj:UniqueIdObjectBridge,func:fun(card:InGameCardBridge):string))
 ---@field RegCardDescOverride fun(self:Events,uobj:UniqueIdObjectBridge,func:fun(card:InGameCardBridge):string))
 ---@field RegActionNameOverride fun(self:Events,uobj:UniqueIdObjectBridge,func:fun(actionName:string,card:InGameCardBridge):string))
+---@field RegActionTipOverride fun(self:Events,uobj:UniqueIdObjectBridge,func:fun(actionName:string,card:InGameCardBridge):string))
 Events = {}
 
 ---@class CoroutineHelper
 ---@field BatchEnumerators fun(self:CoroutineHelper,action:BatchEnumeratorsActionDelegate)
+---@field PushCoQueue fun(self:CoroutineHelper)
 CoroutineHelper = {}
 
 ---@alias FadeToBlackTypes ("None"|"Partial"|"Full")
@@ -32,7 +34,10 @@ CoroutineHelper = {}
 ---@class GameBridge
 ---@field CreateAction fun(self:GameBridge,id:string,name:string,type:CardActionType):CardActionBridge
 ---@field CreateCard fun(self:GameBridge,id:string,name:string,type:CardTypes,icon:string):UniqueIdObjectBridge
+---
 ---@field Log fun(self:GameBridge,message:string)
+---@field GetGlobalValue fun(self:GameBridge,key:string):string|number|nil
+---@field SetGlobalValue fun(self:GameBridge,key:string,val:string|number|nil)
 ---@field PassTime fun(self:GameBridge,miniTick:number,fromCard:InGameCardBridge,blockable:boolean,fadeType:FadeToBlackTypes,fadeText:string)
 ---@field PassTimeEnum fun(self:GameBridge,miniTick:number,fromCard:InGameCardBridge,blockable:boolean,fadeType:FadeToBlackTypes,fadeText:string):IEnumerator
 ---@field GetItem fun(self:GameBridge,key:string):(UniqueIdObjectBridge|nil)

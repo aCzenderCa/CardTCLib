@@ -18,12 +18,37 @@ public partial class UniqueIdObjectBridge
         get => CardData?.CardDescription;
         set
         {
-            if (CardData != null)
+            if (!(CardData is var cardData && cardData != null)) return;
+            cardData.CardDescription = new LocalizedString
+                { LocalizationKey = cardData.CardDescription.LocalizationKey, DefaultText = value };
+        }
+    }
+
+    public void AddTag(string tag)
+    {
+        if (!(CardData is var cardData && cardData != null)) return;
+        var tags = Resources.FindObjectsOfTypeAll<CardTag>();
+        foreach (var cardTag in tags)
+        {
+            if (cardTag.CheckTag(tag))
             {
-                CardData.CardDescription = new LocalizedString
-                    { LocalizationKey = CardData.CardDescription.LocalizationKey, DefaultText = value };
+                cardData.CardTags = cardData.CardTags.AddToArray(cardTag);
+                return;
             }
         }
+    }
+
+    public void RemoveTag(string tag)
+    {
+        if (!(CardData is var cardData && cardData != null)) return;
+        var (_, i) = cardData.FindTag(tag);
+        if (i >= 0) cardData.CardTags = cardData.CardTags.RemoveAtOnArr(i);
+    }
+
+    public bool HasTag(string tag)
+    {
+        if (!(CardData is var cardData && cardData != null)) return false;
+        return cardData != null && cardData.CardTags.Any(cardTag => cardTag.CheckTag(tag));
     }
 
     #region Action
@@ -74,7 +99,7 @@ public partial class UniqueIdObjectBridge
                     }
                     else if (id is long iid)
                     {
-                        cardData.CardInteractions = cardData.CardInteractions.Where((_, i) => i == iid).ToArray();
+                        cardData.CardInteractions = cardData.CardInteractions.RemoveAtOnArr((int)iid);
                     }
                 }
 
@@ -89,7 +114,7 @@ public partial class UniqueIdObjectBridge
                     }
                     else if (id is long iid)
                     {
-                        cardData.DismantleActions = cardData.DismantleActions.Where((_, i) => i == iid).ToList();
+                        cardData.DismantleActions = cardData.DismantleActions.RemoveAtSpecial((int)iid).ToList();
                     }
                 }
 
@@ -105,7 +130,7 @@ public partial class UniqueIdObjectBridge
                     else if (id is long iid)
                     {
                         cardData.OnStatsChangeActions =
-                            cardData.OnStatsChangeActions.Where((_, i) => i == iid).ToArray();
+                            cardData.OnStatsChangeActions.RemoveAtOnArr((int)iid);
                     }
                 }
 

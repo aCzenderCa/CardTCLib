@@ -26,4 +26,9 @@ public class CoroutineHelper(Lua lua)
             CoUtils.StartCoWithBlockAction(enumerator);
         }
     }
+
+    public void PushCoQueue()
+    {
+        CoUtils.CollectCacheAndStart();
+    }
 }

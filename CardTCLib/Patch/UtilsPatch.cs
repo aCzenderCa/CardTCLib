@@ -15,7 +15,11 @@ public static class UtilsPatch
     [HarmonyPatch(typeof(InGameCardBase), nameof(InGameCardBase.DestroyCard)), HarmonyPostfix]
     public static void InGameCardBase_DestroyCard_Post(InGameCardBase __instance, ref IEnumerator __result)
     {
-        __result = __result.OnEnumerator(onstart: () => { InGameCardBridge.CardBridges.Remove(__instance); });
+        __result = __result.OnEnumerator(onstart: () =>
+        {
+            InGameCardBridge.CardBridges.Remove(__instance);
+            return null;
+        });
     }
 
     [HarmonyPatch(typeof(BlueprintConstructionPopup), nameof(BlueprintConstructionPopup.AutoFill)), HarmonyPostfix]

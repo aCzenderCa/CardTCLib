@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.IO;
 using ModLoader;
 using static CardTCLib.LuaBridge.CommonValue;
+using Base64 = gfoidl.Base64.Base64;
 
 namespace CardTCLib.LuaBridge;
 
@@ -109,5 +111,38 @@ public static class RWUtils
         }
 
         return commonValues;
+    }
+
+    private static void OverwriteCommonValueTable(this BinaryReader reader,
+        Dictionary<string, CommonValue> table)
+    {
+        var count = reader.ReadInt32();
+        for (var i = 0; i < count; i++)
+        {
+            var key = reader.ReadString();
+            var value = reader.ReadCommonValue();
+            table[key] = value;
+        }
+    }
+
+    public static Dictionary<string, CommonValue> DecodeB64CommonValueTable(string b64String,
+        Dictionary<string, CommonValue>? table = null)
+    {
+        table ??= new Dictionary<string, CommonValue>();
+        var decode = Base64.Default.Decode(b64String.ToCharArray());
+        using var reader = new BinaryReader(new MemoryStream(decode));
+        reader.OverwriteCommonValueTable(table);
+
+        return table;
+    }
+
+    public static string EncodeB64CommonValueTable(this Dictionary<string, CommonValue> table)
+    {
+        var memoryStream = new MemoryStream();
+        using var writer = new BinaryWriter(memoryStream);
+        writer.Write(table);
+        writer.Flush();
+        var base64Str = Base64.Default.Encode(memoryStream.ToArray());
+        return base64Str;
     }
 }
