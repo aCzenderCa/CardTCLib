@@ -51,6 +51,66 @@ public partial class UniqueIdObjectBridge
         return cardData != null && cardData.CardTags.Any(cardTag => cardTag.CheckTag(tag));
     }
 
+    public DurabilityStat? GetDurabilityStat(string durabilityType)
+    {
+        if (!(CardData is var cardData && cardData != null)) return null;
+        if (!Enum.TryParse<DurabilitiesTypes>(durabilityType, out var types)) return null;
+        switch (types)
+        {
+            case DurabilitiesTypes.Spoilage:
+                return cardData.SpoilageTime;
+            case DurabilitiesTypes.Usage:
+                return cardData.UsageDurability;
+            case DurabilitiesTypes.Fuel:
+                return cardData.FuelCapacity;
+            case DurabilitiesTypes.Progress:
+                return cardData.Progress;
+            case DurabilitiesTypes.Special1:
+                return cardData.SpecialDurability1;
+            case DurabilitiesTypes.Special2:
+                return cardData.SpecialDurability2;
+            case DurabilitiesTypes.Special3:
+                return cardData.SpecialDurability3;
+            case DurabilitiesTypes.Special4:
+                return cardData.SpecialDurability4;
+        }
+
+        return null;
+    }
+
+    public void SetDurabilityStat(string durabilityType, DurabilityStat stat)
+    {
+        if (!(CardData is var cardData && cardData != null)) return;
+        if (!Enum.TryParse<DurabilitiesTypes>(durabilityType, out var types)) return;
+        switch (types)
+        {
+            case DurabilitiesTypes.Spoilage:
+                cardData.SpoilageTime = stat;
+                break;
+            case DurabilitiesTypes.Usage:
+                cardData.UsageDurability = stat;
+                break;
+            case DurabilitiesTypes.Fuel:
+                cardData.FuelCapacity = stat;
+                break;
+            case DurabilitiesTypes.Progress:
+                cardData.Progress = stat;
+                break;
+            case DurabilitiesTypes.Special1:
+                cardData.SpecialDurability1 = stat;
+                break;
+            case DurabilitiesTypes.Special2:
+                cardData.SpecialDurability2 = stat;
+                break;
+            case DurabilitiesTypes.Special3:
+                cardData.SpecialDurability3 = stat;
+                break;
+            case DurabilitiesTypes.Special4:
+                cardData.SpecialDurability4 = stat;
+                break;
+        }
+    }
+
     #region Action
 
     public CardActionBridge AddAction(string id, string name, string type)

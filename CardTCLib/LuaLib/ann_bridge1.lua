@@ -21,6 +21,7 @@
 ---@field RegCardDescOverride fun(self:Events,uobj:UniqueIdObjectBridge,func:fun(card:InGameCardBridge):string))
 ---@field RegActionNameOverride fun(self:Events,uobj:UniqueIdObjectBridge,func:fun(actionName:string,card:InGameCardBridge):string))
 ---@field RegActionTipOverride fun(self:Events,uobj:UniqueIdObjectBridge,func:fun(actionName:string,card:InGameCardBridge):string))
+---@field RegPossibleActionOverride fun(self:Events,uobj:UniqueIdObjectBridge,func:fun(rec:InGameCardBridge,give:InGameCardBridge):int|nil))
 Events = {}
 
 ---@class CoroutineHelper
@@ -34,6 +35,7 @@ CoroutineHelper = {}
 ---@class GameBridge
 ---@field CreateAction fun(self:GameBridge,id:string,name:string,type:CardActionType):CardActionBridge
 ---@field CreateCard fun(self:GameBridge,id:string,name:string,type:CardTypes,icon:string):UniqueIdObjectBridge
+---@field CreateDurabilityStat fun(self:GameBridge,id:string,args:table,active:boolean|nil):DurabilityStat
 ---
 ---@field Log fun(self:GameBridge,message:string)
 ---@field GetGlobalValue fun(self:GameBridge,key:string):string|number|nil

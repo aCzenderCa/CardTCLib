@@ -5,6 +5,7 @@
 
 ---@alias bpMainTab "生存"|"工具"|"狩猎"|"纺织"|"冶金 & 制陶"|"农业"|"魔法"|string
 ---@alias bpSubTab "火"|"物资"|"医疗"|"娱乐"|"工具"|"高级工具"|"材料"|"家具"|"建造房屋"|"钓鱼"|"陷阱"|"近战"|"简易的"|"布"|"皮革"|"毛皮"|"装备"|"工具"|"器具"|"农业"|"动物养殖"|"圣地"|"灵具"|string
+---@alias enumDurability "Usage"|"Fuel"|"Progress"|"Spoilage"|"Special1"|"Special2"|"Special3"|"Special4"
 
 ---@class UniqueIdObjectBridge
 ---@field CardData CardData
@@ -38,6 +39,9 @@
 ---@field MaxWeightCapacity number
 ---@field AddSlot fun(self:UniqueIdObjectBridge,add:UniqueIdObjectBridge|nil)
 ---@field RemoveSlot fun(self:UniqueIdObjectBridge,idx:number)
+---
+---@field SetDurabilityStat fun(self:UniqueIdObjectBridge,type:enumDurability,stat:DurabilityStat)
+---@field GetDurabilityStat fun(self:UniqueIdObjectBridge,type:enumDurability):DurabilityStat
 
 ---@class InGameCardBridge
 ---@field CardModel UniqueIdObjectBridge
@@ -56,8 +60,8 @@
 ---@field InventoryCardsCount number
 ---@field HasTag fun(self:InGameCardBridge,tag:string):boolean
 ---@field GetItem fun(self:InGameCardBridge,idx:number):InGameCardBridge[]
----@field GetDurability fun(self:InGameCardBridge,key:string):number
----@field SetDurability fun(self:InGameCardBridge,key:string,val:number)
----@field SetDurabilityEnum fun(self:InGameCardBridge,key:string,val:number):IEnumerator
+---@field GetDurability fun(self:InGameCardBridge,key:enumDurability):number
+---@field SetDurability fun(self:InGameCardBridge,key:enumDurability,val:number)
+---@field SetDurabilityEnum fun(self:InGameCardBridge,key:enumDurability,val:number):IEnumerator
 ---@field AddDurability fun(self:InGameCardBridge,key:string,val:number)
 ---@field AddDurabilityEnum fun(self:InGameCardBridge,key:string,val:number):IEnumerator

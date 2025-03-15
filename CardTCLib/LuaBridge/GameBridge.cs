@@ -41,6 +41,31 @@ public class GameBridge
 
     #region Create
 
+    public DurabilityStat CreateDurabilityStat(string id, LuaTable table, bool active = true)
+    {
+        var zeroAction = table.GetObj<CardActionBridge>("OnZero");
+        var fullAction = table.GetObj<CardActionBridge>("OnFull");
+        var durabilityStat = new DurabilityStat(active, (float)table.GetNum("InitValue"))
+        {
+            MaxValue = (float)table.GetNum("MaxValue"),
+            CardStatName = new LocalizedString
+                { DefaultText = id, LocalizationKey = id + "_CardStatName", ParentObjectID = id },
+        };
+        if (zeroAction != null)
+        {
+            durabilityStat.OnZero = zeroAction.Action;
+            durabilityStat.HasActionOnZero = true;
+        }
+
+        if (fullAction != null)
+        {
+            durabilityStat.OnFull = fullAction.Action;
+            durabilityStat.HasActionOnFull = true;
+        }
+
+        return durabilityStat;
+    }
+
     public CardActionBridge CreateAction(string id, string name, string type)
     {
         CardAction? action = null;
@@ -174,6 +199,7 @@ public class GameBridge
 
     public static readonly Regex GlobalValuesDatRx = new Regex(@"^\[TCLib.GData\](?<gdata>.+)$");
     public readonly Dictionary<string, CommonValue> GlobalVariables = [];
+
     public void LoadGlobalValues()
     {
         var saveData = GameManager.Instance.CurrentSaveData;

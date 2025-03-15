@@ -13,3 +13,6 @@
 ---@field BuildingDaytimeCost int
 ---@field DeconstructDaytimeCost int
 ---
+
+---@class DurabilityStat
+---

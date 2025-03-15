@@ -7,8 +7,8 @@ public class Events
 {
     public delegate void OnCardActionDelegate(InGameCardBridge rec, InGameCardBridge? give);
 
-    private Action _modLoadComplete;
-    private Action _modLoadCompletePost;
+    private Action? _modLoadComplete;
+    private Action? _modLoadCompletePost;
     private readonly Dictionary<string, OnCardActionDelegate> _onActions = new();
     private readonly Dictionary<string, OnCardActionDelegate> _onEndActions = new();
     public readonly Dictionary<string, Func<InGameCardBridge, string>> CardNameOverrides = new();
