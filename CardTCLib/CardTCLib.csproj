@@ -76,6 +76,10 @@
         <HintPath>D:\SteamLibrary\steamapps\common\Card Survival Fantasy Forest\Card Survival - Fantasy Forest_Data\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
         <Private>False</Private>
       </Reference>
+      <Reference Include="UnityEngine.UI">
+        <HintPath>..\..\..\..\SteamLibrary\steamapps\common\Card Survival Fantasy Forest\Card Survival - Fantasy Forest_Data\Managed\UnityEngine.UI.dll</HintPath>
+        <Private>False</Private>
+      </Reference>
     </ItemGroup>
 
     <ItemGroup>

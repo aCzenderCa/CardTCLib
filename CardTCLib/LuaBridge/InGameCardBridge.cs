@@ -320,7 +320,7 @@ public class InGameCardBridge
         if (uniqueIdObjectBridge.UniqueIDScriptable is not CardData cardData) return null;
 
         var addCard = GameManager.Instance.AddCard(cardData, Card.CurrentContainer, true,
-            GameManager.SpecialDrop.InsideCardInventory, Card.GetDurabilities(), Card.BlueprintData,
+            GameManager.SpecialDrop.None, Card.GetDurabilities(), Card.BlueprintData,
             Card.CurrentFlavours, Card.CurrentSpices, false,
             Card.ContainedLiquid ? new SpawningLiquid(Card.ContainedLiquid.CardModel) : SpawningLiquid.DefaultLiquid,
             CurrentTickForAddCard, Card.TravelTarget.DictionnaryKey, _MoveView: false);

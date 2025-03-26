@@ -270,7 +270,14 @@ public partial class UniqueIdObjectBridge
                 RequiredCard = val.GetObj<UniqueIdObjectBridge>("Card")?.CardData,
                 RequiredQuantity = (int)val.GetNum("Count"),
                 DontSpend = !val.GetBool("Spend"),
-                Usage = new OptionalRangeValue(true, (float)val.GetNum("UsageCost"), 0)
+                Usage = new OptionalRangeValue(true, (float)val.GetNum("UsageCost"), 0),
+                Spoilage = new OptionalRangeValue(false, 0, 0),
+                Fuel = new OptionalRangeValue(false, 0, 0),
+                Progress = new OptionalRangeValue(false, 0, 0),
+                Special1 = new OptionalRangeValue(false, 0, 0),
+                Special2 = new OptionalRangeValue(false, 0, 0),
+                Special3 = new OptionalRangeValue(false, 0, 0),
+                Special4 = new OptionalRangeValue(false, 0, 0),
             };
             blueprintElements.Add(blueprintElement);
         }
@@ -326,4 +333,11 @@ public partial class UniqueIdObjectBridge
     }
 
     #endregion
+
+    public void AddTag(CardTag cardTag)
+    {
+        if (UniqueIDScriptable is not CardData cardData) return;
+        cardData.CardTags ??= [];
+        cardData.CardTags = cardData.CardTags.AddToArray(cardTag);
+    }
 }

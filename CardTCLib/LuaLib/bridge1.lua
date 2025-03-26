@@ -65,7 +65,18 @@ end
 
 ---@param card UniqueIdObjectBridge|InGameCardBridge
 function CardUtil.FindFirstCard(card, includeBackground)
-    return CardUtil.FindCards(card, includeBackground)[1]
+    local find = CardUtil.FindCards(card, includeBackground)
+    if #find > 0 then
+        return find[1]
+    end
+end
+
+---@param tag string
+function CardUtil.FindFirstCardByTag(tag, includeBackground)
+    local find = CardUtil.FindCardsByTag(tag, includeBackground)
+    if #find > 0 then
+        return find[1]
+    end
 end
 
 ---@param card UniqueIdObjectBridge|InGameCardBridge
@@ -76,5 +87,14 @@ function CardUtil.FindCards(card, includeBackground)
     ---@type InGameCardBridge[]
     local cache = {}
     Game:FindCards(cardData, cache, includeBackground)
+    return cache
+end
+
+---@param tag string
+function CardUtil.FindCardsByTag(tag, includeBackground)
+    includeBackground = includeBackground or false
+    ---@type InGameCardBridge[]
+    local cache = {}
+    Game:FindCardsByTag(tag, cache, includeBackground)
     return cache
 end

@@ -2,9 +2,11 @@
 
 public static class CardCommonUtils
 {
-    public static bool CheckTag(this CardTag cardTag, string tag)
+    public static bool CheckTag(this CardTag? cardTag, string tag)
     {
-        return cardTag.name == tag || cardTag.InGameName == tag || cardTag.InGameName.DefaultText == tag;
+        if (cardTag == null) return false;
+        return cardTag.name == tag || cardTag.InGameName == tag || cardTag.InGameName.Chinese() == tag ||
+               cardTag.InGameName.DefaultText == tag;
     }
 
     public static (CardTag? tag, int idx) FindTag(this CardData cardData, string tag)

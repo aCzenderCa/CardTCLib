@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using CardTCLib.LuaBridge;
 using CardTCLib.Util;
 using HarmonyLib;
+using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace CardTCLib.Patch;
 
@@ -33,7 +35,7 @@ public static class CardPatch_0
     [HarmonyPatch(typeof(InGameCardBase), nameof(InGameCardBase.CardName)), HarmonyPostfix]
     public static void InGameCardBase_CardName(InGameCardBase __instance, ref string __result)
     {
-        if (__instance && __instance.CardModel &&
+        if (__instance && __instance.CardModel && __instance.CardModel.UniqueID != null &&
             MainRuntime.Events.CardNameOverrides.TryGetValue(__instance.CardModel.UniqueID, out var func))
         {
             __result = func(InGameCardBridge.Get(__instance)!) ?? __result;
@@ -101,7 +103,12 @@ public static class CardPatch_0
                 if (value != null)
                 {
                     __instance.PossibleAction = _WithCard.CardModel.CardInteractions[value.Value];
+                    __instance.SetGraphicState(CardGraphics.CardGraphicsStates.Highlighted);
                     __instance.ActionIsReversed = true;
+                    __instance.HasAction = true;
+                    __instance.BlocksRaycasts = true;
+                    __instance.ActionType = InGameCardBase.ActionTypes.Standard;
+                    __instance.PossibleAction.CollectActionModifiers(_WithCard, __instance);
                 }
             }
 
@@ -112,7 +119,12 @@ public static class CardPatch_0
                 if (value != null)
                 {
                     __instance.PossibleAction = __instance.CardModel.CardInteractions[value.Value];
+                    __instance.SetGraphicState(CardGraphics.CardGraphicsStates.Highlighted);
                     __instance.ActionIsReversed = false;
+                    __instance.HasAction = true;
+                    __instance.BlocksRaycasts = true;
+                    __instance.ActionType = InGameCardBase.ActionTypes.Standard;
+                    __instance.PossibleAction.CollectActionModifiers(__instance, _WithCard);
                 }
             }
         }

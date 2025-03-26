@@ -8,25 +8,38 @@ using CardTCLib.Util;
 using HarmonyLib;
 using NLua;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace CardTCLib.LuaBridge;
 
 public class GameBridge
 {
     public int MiniTicksPerTick => GameManager.Instance.DaySettings.MiniTicksPerTick;
+    public static Dictionary<string, UniqueIdObjectBridge> FindCache = new();
 
     public UniqueIdObjectBridge? GetItem(string key)
     {
+        if (string.IsNullOrEmpty(key)) return null;
         var uniqueIDScriptable = UniqueIDScriptable.AllUniqueObjects.GetValueSafe(key);
         if (uniqueIDScriptable == null)
             uniqueIDScriptable = ModLoader.ModLoader.AllGUIDDict.GetValueSafe(key);
 
+        if (FindCache.TryGetValue(key, out var bridge)) return bridge;
         if (uniqueIDScriptable == null)
         {
+            var c = "";
+            if (key.Length > 2 && key[2] == '_')
+            {
+                c = key.Substring(0, 2);
+                key = key.Substring(3);
+            }
+
             var uniqueIdObjectBridge = new UniqueIdObjectBridge(null);
             uniqueIDScriptable = ModLoader.ModLoader.AllGUIDDict.Values.Concat(GameLoad.Instance.DataBase.AllData)
                 .FirstOrDefault(uidScript =>
                 {
+                    if (!string.IsNullOrEmpty(c) && uidScript is CardData cardData &&
+                        !cardData.CardType.ToString().StartsWith(c)) return false;
                     if (uidScript.name == key) return true;
                     uniqueIdObjectBridge.UniqueIDScriptable = uidScript;
                     return uniqueIdObjectBridge.Name == key || uniqueIdObjectBridge.NameLocal == key ||
@@ -35,11 +48,21 @@ public class GameBridge
         }
 
         if (uniqueIDScriptable == null) return null;
+        FindCache[key] = new UniqueIdObjectBridge(uniqueIDScriptable);
 
-        return new UniqueIdObjectBridge(uniqueIDScriptable);
+        return FindCache[key];
     }
 
     #region Create
+
+    public CardTag CreateCardTag(string tagId, string tagName)
+    {
+        var cardTag = ScriptableObject.CreateInstance<CardTag>();
+        cardTag.InGameName = new LocalizedString
+            { DefaultText = tagName, ParentObjectID = tagId, LocalizationKey = tagId };
+        cardTag.name = tagId;
+        return cardTag;
+    }
 
     public DurabilityStat CreateDurabilityStat(string id, LuaTable table, bool active = true)
     {
@@ -180,10 +203,10 @@ public class GameBridge
         }
     }
 
-    public void FindCards(UniqueIdObjectBridge uniqueIdObjectBridge, LuaTable save, bool includeBackground = false)
+    public LuaTable FindCards(UniqueIdObjectBridge uniqueIdObjectBridge, LuaTable save, bool includeBackground = false)
     {
         var cardData = uniqueIdObjectBridge.CardData;
-        if (cardData == null) return;
+        if (cardData == null) return save;
         var idx = 1;
         foreach (var inGameCardBase in GameManager.Instance.AllCards)
         {
@@ -193,6 +216,24 @@ public class GameBridge
                 idx++;
             }
         }
+
+        return save;
+    }
+
+    public LuaTable FindCardsByTag(string tag, LuaTable save, bool includeBackground = false)
+    {
+        var idx = 1;
+        foreach (var inGameCardBase in GameManager.Instance.AllCards)
+        {
+            if ((!inGameCardBase.InBackground || includeBackground) &&
+                InGameCardBridge.Get(inGameCardBase)!.HasTag(tag))
+            {
+                save[idx] = InGameCardBridge.Get(inGameCardBase);
+                idx++;
+            }
+        }
+
+        return save;
     }
 
     #region GlobalValue
@@ -242,6 +283,50 @@ public class GameBridge
     public void SetGlobalValue(string key, object value)
     {
         GlobalVariables[key] = new CommonValue(value);
+    }
+
+    #endregion
+
+    #region Encounter
+
+    public void AddEncounterAction(string id, string name)
+    {
+        var instanceEncounterPopupWindow = GraphicsManager.Instance.EncounterPopupWindow;
+        if (!instanceEncounterPopupWindow.OngoingEncounter) return;
+
+        var actionName = new LocalizedString
+        {
+            DefaultText = name, ParentObjectID = id, LocalizationKey = "EncounterAction_" + id
+        };
+        instanceEncounterPopupWindow.AddMainButton([
+            new GenericEncounterPlayerAction
+            {
+                GeneratedActionName = actionName,
+                ActionName = actionName,
+                DontShowSuccessChance = true,
+                ActionType = EncounterPlayerActionType.FreeAction,
+                TemporaryEffects = [],
+                DoesNotAttack = true,
+            }
+        ], null);
+    }
+
+    public void DoDamageToEnemy(float damage, float change, float hpScale = 1, float moraleScale = 1)
+    {
+        var instanceEncounterPopupWindow = GraphicsManager.Instance.EncounterPopupWindow;
+        if (!instanceEncounterPopupWindow.OngoingEncounter) return;
+        if (Random.value > change) return;
+        instanceEncounterPopupWindow.CurrentEncounter.ModifyEnemyValue(EnemyValueNames.Blood, -damage * hpScale);
+        instanceEncounterPopupWindow.CurrentEncounter.ModifyEnemyValue(EnemyValueNames.Morale, -damage * moraleScale);
+    }
+
+    public void HealPlayer(float heal, float change, float hpScale = 1, float moraleScale = 1)
+    {
+        var instanceEncounterPopupWindow = GraphicsManager.Instance.EncounterPopupWindow;
+        if (!instanceEncounterPopupWindow.OngoingEncounter) return;
+        if (Random.value > change) return;
+        var healCo = GetItem("失血")!.AddStatEnum(-heal * hpScale).Then(GetItem("士气")!.AddStatEnum(heal * moraleScale));
+        CoUtils.StartCoWithBlockAction(healCo);
     }
 
     #endregion

@@ -5,6 +5,9 @@
 ---
 
 ---@class CardActionBridge
+---@field ToTick fun(self:CardActionBridge)
+---@field DontClosePopup boolean
+---
 
 ---@class int
 
@@ -15,4 +18,7 @@
 ---
 
 ---@class DurabilityStat
+---
+
+---@class CardTag
 ---

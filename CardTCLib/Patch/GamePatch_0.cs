@@ -18,4 +18,24 @@ public static class GamePatch_0
             return;
         MainRuntime.Game.SaveGlobalValues(__instance.Games[_Index].GetCheckpointData(_Checkpoint, _CustomIndex));
     }
+
+    [HarmonyPatch(typeof(EncounterPopup), nameof(EncounterPopup.DisplayPlayerActions)), HarmonyPostfix]
+    public static void OnDisplayEncounterPlayerActions(EncounterPopup __instance)
+    {
+        MainRuntime.Events.OnDisplayEncounterPlayerActions?.Invoke();
+    }
+
+    [HarmonyPatch(typeof(EncounterPopup), nameof(EncounterPopup.DoPlayerAction)), HarmonyPrefix]
+    public static bool OnDoPlayerAction(EncounterPopup __instance, GenericEncounterPlayerAction? _Action)
+    {
+        if (_Action?.ActionName.ParentObjectID == null) return true;
+        var id = _Action.ActionName.ParentObjectID;
+        if (MainRuntime.Events.OnPlayerEncounterActions.TryGetValue(id, out var action))
+        {
+            action();
+            return false;
+        }
+
+        return true;
+    }
 }

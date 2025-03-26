@@ -20,7 +20,7 @@
 ---@field SetBuildStatCost fun(self:UniqueIdObjectBridge,mods:StatModifier[])
 ---
 ---@field GenNpcCardModel fun(self:UniqueIdObjectBridge):UniqueIdObjectBridge
----@field AddAction fun(self:UniqueIdObjectBridge,id:string,name:string,type:CardActionType)
+---@field AddAction fun(self:UniqueIdObjectBridge,id:string,name:string,type:CardActionType):CardActionBridge
 ---@field AddAction fun(self:UniqueIdObjectBridge,action:CardActionBridge)
 ---@field RemoveAction fun(self:UniqueIdObjectBridge,type:CardActionType,id:string)
 ---@field GetStatInfo fun(self:UniqueIdObjectBridge):number,number,number,number
@@ -28,17 +28,21 @@
 ---@field SetStatEnum fun(self:UniqueIdObjectBridge,newValue:number,newRate:number):IEnumerator
 ---@field AddStat fun(self:UniqueIdObjectBridge,newValue:number,newRate:number)
 ---@field AddStatEnum fun(self:UniqueIdObjectBridge,newValue:number,newRate:number):IEnumerator
+---
 ---@field Name string
 ---@field NameLocal string
 ---@field NameChinese string
 ---@field SetIcon fun(self:UniqueIdObjectBridge,icon:string)
 ---@field GetItem fun(self:UniqueIdObjectBridge,key:string):number
 ---@field SetItem fun(self:UniqueIdObjectBridge,key:string):number
+---
 ---@field Desc string
 ---@field Weight number
 ---@field MaxWeightCapacity number
 ---@field AddSlot fun(self:UniqueIdObjectBridge,add:UniqueIdObjectBridge|nil)
 ---@field RemoveSlot fun(self:UniqueIdObjectBridge,idx:number)
+---
+---@field AddTag fun(self:UniqueIdObjectBridge,tag:CardTag)
 ---
 ---@field SetDurabilityStat fun(self:UniqueIdObjectBridge,type:enumDurability,stat:DurabilityStat)
 ---@field GetDurabilityStat fun(self:UniqueIdObjectBridge,type:enumDurability):DurabilityStat
@@ -63,5 +67,5 @@
 ---@field GetDurability fun(self:InGameCardBridge,key:enumDurability):number
 ---@field SetDurability fun(self:InGameCardBridge,key:enumDurability,val:number)
 ---@field SetDurabilityEnum fun(self:InGameCardBridge,key:enumDurability,val:number):IEnumerator
----@field AddDurability fun(self:InGameCardBridge,key:string,val:number)
----@field AddDurabilityEnum fun(self:InGameCardBridge,key:string,val:number):IEnumerator
+---@field AddDurability fun(self:InGameCardBridge,key:enumDurability,val:number)
+---@field AddDurabilityEnum fun(self:InGameCardBridge,key:enumDurability,val:number):IEnumerator
