@@ -17,6 +17,10 @@ public class GameBridge
     public int MiniTicksPerTick => GameManager.Instance.DaySettings.MiniTicksPerTick;
     public static Dictionary<string, UniqueIdObjectBridge> FindCache = new();
 
+    public static readonly Regex UidObjFindRegex = new(
+        @"^(\[(?<type>.+?)\])?(?<name>.+?)(\{(?<key>.+?):(?<val>.+)\})*$",
+        RegexOptions.Compiled);
+
     public UniqueIdObjectBridge? GetItem(string key)
     {
         if (string.IsNullOrEmpty(key)) return null;
@@ -27,23 +31,33 @@ public class GameBridge
         if (FindCache.TryGetValue(key, out var bridge)) return bridge;
         if (uniqueIDScriptable == null)
         {
-            var c = "";
-            if (key.Length > 2 && key[2] == '_')
+            var match = UidObjFindRegex.Match(key);
+            if (!match.Success) return null;
+            var c = match.Groups["name"].Value;
+            var type = match.Groups["type"].Value;
+            List<string>? tags = null;
+            for (var i = 0; i < match.Groups["key"].Captures.Count; i++)
             {
-                c = key.Substring(0, 2);
-                key = key.Substring(3);
+                if (match.Groups["key"].Captures[i].Value == "tags")
+                {
+                    tags = match.Groups["val"].Captures[i].Value.Split(',').ToList();
+                }
             }
+
+            tags ??= [];
 
             var uniqueIdObjectBridge = new UniqueIdObjectBridge(null);
             uniqueIDScriptable = ModLoader.ModLoader.AllGUIDDict.Values.Concat(GameLoad.Instance.DataBase.AllData)
                 .FirstOrDefault(uidScript =>
                 {
                     if (!string.IsNullOrEmpty(c) && uidScript is CardData cardData &&
-                        !cardData.CardType.ToString().StartsWith(c)) return false;
-                    if (uidScript.name == key) return true;
+                        !cardData.CardType.ToString().StartsWith(type)) return false;
+                    if (uidScript.name == c) return true;
+                    if (uidScript is CardData cardData1 &&
+                        tags.Any(s => !new UniqueIdObjectBridge(cardData1).HasTag(s))) return false;
                     uniqueIdObjectBridge.UniqueIDScriptable = uidScript;
-                    return uniqueIdObjectBridge.Name == key || uniqueIdObjectBridge.NameLocal == key ||
-                           uniqueIdObjectBridge.NameChinese == key;
+                    return uniqueIdObjectBridge.Name == c || uniqueIdObjectBridge.NameLocal == c ||
+                           uniqueIdObjectBridge.NameChinese == c;
                 });
         }
 
